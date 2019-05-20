@@ -113,60 +113,71 @@ RawReadsManifest extends ManifestReader {
     }
 
 
-    @SuppressWarnings("serial")
-    public RawReadsManifest(SampleProcessor sampleProcessor, StudyProcessor studyProcessor) {
+    public 
+    RawReadsManifest( SampleProcessor sampleProcessor, 
+                      StudyProcessor  studyProcessor ) 
+    {
         super(
                 // Fields.
                 new ManifestFieldDefinition.Builder()
-                       .meta().required().name(Field.NAME).desc(Description.NAME).and()
-                       .meta().required().name(Field.STUDY).desc(Description.STUDY).processor(studyProcessor).and()
-                       .meta().required().name(Field.SAMPLE).desc(Description.SAMPLE).processor(sampleProcessor).and()
-                       .meta().optional().name(Field.DESCRIPTION).desc(Description.DESCRIPTION).and()
-                       .meta().optional().requiredInSpreadsheet().name(Field.INSTRUMENT).desc(Description.INSTRUMENT).processor(new CVFieldProcessor(CV_INSTRUMENT)).and()
-                       .meta().optional().notInSpreadsheet().name(Field.PLATFORM).desc(Description.PLATFORM).processor(new CVFieldProcessor(CV_PLATFORM)).and()
-                       .meta().required().name(Field.LIBRARY_SOURCE).desc(Description.LIBRARY_SOURCE).processor(new CVFieldProcessor(CV_SOURCE)).and()
-                       .meta().required().name(Field.LIBRARY_SELECTION).desc(Description.LIBRARY_SELECTION).processor(new CVFieldProcessor(CV_SELECTION)).and()
-                       .meta().required().name(Field.LIBRARY_STRATEGY).desc(Description.LIBRARY_STRATEGY).processor(new CVFieldProcessor(CV_STRATEGY)).and()
-                       .meta().optional().name(Field.LIBRARY_CONSTRUCTION_PROTOCOL).desc(Description.LIBRARY_CONSTRUCTION_PROTOCOL).and()
-                       .meta().optional().name(Field.LIBRARY_NAME).desc(Description.LIBRARY_NAME).and()
-                       .meta().optional().name(Field.INSERT_SIZE).desc(Description.INSERT_SIZE).and()
-                       .file().optional(2).name(Field.FASTQ).desc(Description.FASTQ).processor(getFastqProcessors()).and()
-                       .file().optional().name(Field.BAM).desc(Description.BAM).processor(getBamProcessors()).and()
-                       .file().optional().name(Field.CRAM).desc(Description.CRAM).processor(getCramProcessors()).and()
-                       .meta().optional().notInSpreadsheet().name(Field.QUALITY_SCORE).desc(Description.QUALITY_SCORE).processor(new CVFieldProcessor(CV_QUALITY_SCORE)).and()
-                       .meta().optional().notInSpreadsheet().name(Field.__HORIZON).desc(Description.__HORIZON).build()
-                ,
+                       .meta().required().name( Field.NAME        ).desc( Description.NAME        ).and()
+                       .meta().required().name( Field.STUDY       ).desc( Description.STUDY       ).processor( studyProcessor ).and()
+                       .meta().required().name( Field.SAMPLE      ).desc( Description.SAMPLE      ).processor( sampleProcessor ).and()
+                       .meta().optional().name( Field.DESCRIPTION ).desc( Description.DESCRIPTION ).and()
+                       .meta().optional().requiredInSpreadsheet().name( Field.INSTRUMENT ).desc( Description.INSTRUMENT ).processor( new CVFieldProcessor( CV_INSTRUMENT ) ).and()
+                       .meta().optional().notInSpreadsheet().name( Field.PLATFORM ).desc( Description.PLATFORM ).processor( new CVFieldProcessor( CV_PLATFORM ) ).and()
+                       .meta().required().name( Field.LIBRARY_SOURCE    ).desc( Description.LIBRARY_SOURCE     ).processor( new CVFieldProcessor( CV_SOURCE ) ).and()
+                       .meta().required().name( Field.LIBRARY_SELECTION ).desc( Description.LIBRARY_SELECTION  ).processor( new CVFieldProcessor( CV_SELECTION ) ).and()
+                       .meta().required().name( Field.LIBRARY_STRATEGY  ).desc( Description.LIBRARY_STRATEGY   ).processor( new CVFieldProcessor( CV_STRATEGY ) ).and()
+                       .meta().optional().name( Field.LIBRARY_CONSTRUCTION_PROTOCOL).desc(Description.LIBRARY_CONSTRUCTION_PROTOCOL ).and()
+                       .meta().optional().name( Field.LIBRARY_NAME      ).desc( Description.LIBRARY_NAME ).and()
+                       .meta().optional().name( Field.INSERT_SIZE       ).desc( Description.INSERT_SIZE  ).and()
+                       .file().optional( 2 ).name( Field.FASTQ ).desc( Description.FASTQ ).processor( getFastqProcessors() ).and()
+                       .file().optional().name( Field.BAM ).desc( Description.BAM ).processor( getBamProcessors() ).and()
+                       .file().optional().name( Field.CRAM ).desc( Description.CRAM ).processor( getCramProcessors() ).and()
+                       .meta().optional().notInSpreadsheet().name( Field.QUALITY_SCORE ).desc( Description.QUALITY_SCORE ).processor( new CVFieldProcessor( CV_QUALITY_SCORE ) ).and()
+                       .meta().optional().notInSpreadsheet().name( Field.__HORIZON     ).desc( Description.__HORIZON     )
+                       .build(),
                 // File groups.
                 new ManifestFileCount.Builder()
-                        .group()
-                        .required(Field.FASTQ, 2)
-                        .and().group()
-                        .required(Field.CRAM)
-                        .and().group()
-                        .required(Field.BAM)
-                        .build()
+                                     .group()
+                                     .required( Field.FASTQ, 2 )
+                                     .and().group()
+                                     .required( Field.CRAM )
+                                     .and().group()
+                                     .required( Field.BAM )
+                                     .build()
         );
     }
 
 
-    private static ManifestFieldProcessor[] getFastqProcessors() {
-        return new ManifestFieldProcessor[]{
+    private static ManifestFieldProcessor[] 
+    getFastqProcessors() 
+    {
+        return new ManifestFieldProcessor[] {
                 new ASCIIFileNameProcessor(),
-                new FileSuffixProcessor(ManifestFileSuffix.GZIP_OR_BZIP_FILE_SUFFIX)};
+                new FileSuffixProcessor( ManifestFileSuffix.GZIP_OR_BZIP_FILE_SUFFIX ) };
     }
 
-    private static ManifestFieldProcessor[] getBamProcessors() {
-        return new ManifestFieldProcessor[]{
+    
+    private static ManifestFieldProcessor[] 
+    getBamProcessors() 
+    {
+        return new ManifestFieldProcessor[] {
                 new ASCIIFileNameProcessor(),
-                new FileSuffixProcessor(ManifestFileSuffix.BAM_FILE_SUFFIX)};
+                new FileSuffixProcessor( ManifestFileSuffix.BAM_FILE_SUFFIX ) };
     }
 
-    private static ManifestFieldProcessor[] getCramProcessors() {
-        return new ManifestFieldProcessor[]{
+    
+    private static ManifestFieldProcessor[] 
+    getCramProcessors() 
+    {
+        return new ManifestFieldProcessor[] {
                 new ASCIIFileNameProcessor(),
-                new FileSuffixProcessor(ManifestFileSuffix.CRAM_FILE_SUFFIX)};
+                new FileSuffixProcessor( ManifestFileSuffix.CRAM_FILE_SUFFIX ) };
     }
 
+    
     @Override public String
     getName()
     {

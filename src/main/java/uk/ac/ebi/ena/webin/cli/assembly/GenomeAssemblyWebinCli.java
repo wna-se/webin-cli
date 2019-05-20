@@ -27,7 +27,14 @@ import uk.ac.ebi.ena.webin.cli.manifest.processor.StudyProcessor;
 public class 
 GenomeAssemblyWebinCli extends SequenceWebinCli<GenomeAssemblyManifest>
 {
-	@Override public WebinCliContext
+	public
+	GenomeAssemblyWebinCli( boolean test_mode )
+    {
+        super( test_mode );
+    }
+
+
+    @Override public WebinCliContext
 	getContext() 
 	{
 		return WebinCliContext.genome;
@@ -38,14 +45,13 @@ GenomeAssemblyWebinCli extends SequenceWebinCli<GenomeAssemblyManifest>
 	createManifestReader()
 	{
 		// Call manifest parser which also set the sample and study fields.
-
-		return new GenomeAssemblyManifest(
-				isMetadataServiceActive(MetadataService.SAMPLE) ? new SampleProcessor( getParameters(), this::setSample ) : null,
-				isMetadataServiceActive(MetadataService.STUDY) ? new StudyProcessor( getParameters(), this::setStudy ) : null,
-				isMetadataServiceActive(MetadataService.RUN) ? new RunProcessor( getParameters(), this::setRunRef ) : null,
-				isMetadataServiceActive(MetadataService.ANALYSIS) ? new AnalysisProcessor( getParameters(), this::setAnalysisRef ) : null,
-				isMetadataServiceActive(MetadataService.SOURCE) ? new SourceFeatureProcessor( getParameters(), this::setSource ) : null );
-	}
+		return getInitialisationTestMode() ? new GenomeAssemblyManifest( null, null, null, null, null )
+		                                   : new GenomeAssemblyManifest( new SampleProcessor( getParameters(), this::setSample ),
+                				                                         new StudyProcessor( getParameters(), this::setStudy ),
+                				                                         new RunProcessor( getParameters(), this::setRunRef ),
+                				                                         new AnalysisProcessor( getParameters(), this::setAnalysisRef ),
+                				                                         new SourceFeatureProcessor( getParameters(), this::setSource ) );
+	} 
 
 	
 	@Override protected void

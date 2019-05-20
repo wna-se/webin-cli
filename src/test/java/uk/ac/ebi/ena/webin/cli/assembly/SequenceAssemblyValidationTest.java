@@ -143,19 +143,22 @@ public class SequenceAssemblyValidationTest {
 
 
     private SequenceAssemblyWebinCli
-    createTsvValidator(File file, FileType fileType) {
+    createTsvValidator(File file, FileType fileType) 
+    {
         SubmissionOptions options = new SubmissionOptions();
-        if (file != null) {
+        if( file != null ) 
+        {
             SubmissionFiles files = new SubmissionFiles();
-            SubmissionFile SubmissionFile = new SubmissionFile(fileType, file);
+            SubmissionFile SubmissionFile = new SubmissionFile( fileType, file );
             files.addFile(SubmissionFile);
-            options.submissionFiles = Optional.of(files);
+            options.submissionFiles = Optional.of( files );
         }
-        options.assemblyInfoEntry = Optional.of(new AssemblyInfoEntry());
-        options.context = Optional.of(Context.sequence);
+        options.assemblyInfoEntry = Optional.of( new AssemblyInfoEntry() );
+        options.context = Optional.of( Context.sequence );
         options.isFixMode = true;
         options.isRemote = true;
-        SequenceAssemblyWebinCli validator = new SequenceAssemblyWebinCli();
+    
+        SequenceAssemblyWebinCli validator = new SequenceAssemblyWebinCli( true );
         validator.setTestMode(true);
         validator.setStudy(new Study());
         validator.setSubmitDir(submitDir);
@@ -165,14 +168,16 @@ public class SequenceAssemblyValidationTest {
         return validator;
     }
 
-    private SequenceAssemblyWebinCli createValidator(File inputDir) {
-        SequenceAssemblyWebinCli cli = new SequenceAssemblyWebinCli();
+    
+    private SequenceAssemblyWebinCli 
+    createValidator( File inputDir ) 
+    {
+        SequenceAssemblyWebinCli cli = new SequenceAssemblyWebinCli( true );
         cli.setTestMode(true);
         cli.setInputDir(inputDir);
         cli.setValidationDir(validationDir);
         cli.setProcessDir(processDir);
         cli.setSubmitDir(submitDir);
-        cli.setMetadataServiceActive(false);
         cli.setSample(AssemblyTestUtils.getDefaultSample());
         cli.setSource(AssemblyTestUtils.getDefaultSourceFeature());
         cli.setStudy(new Study());
@@ -180,6 +185,7 @@ public class SequenceAssemblyValidationTest {
     }
 
     private SequenceAssemblyWebinCli initValidator(Path manifestFile, SequenceAssemblyWebinCli validator) {
+        validator.setInitialisationTestMode( true );
         validator.readManifest(AssemblyTestUtils.createWebinCliParameters(manifestFile.toFile(), validator.getInputDir()));
         return validator;
     }
@@ -218,7 +224,7 @@ public class SequenceAssemblyValidationTest {
                         (tab ? 1 : 0);
 
                 if (cnt == 1) {
-                    SequenceAssemblyWebinCli validator = initValidator(manifestFile, createValidator(tempInputDir));
+                    SequenceAssemblyWebinCli validator = initValidator( manifestFile, createValidator(tempInputDir));
                     SubmissionFiles submissionFiles = validator.getSubmissionOptions().submissionFiles.get();
                     AssertionsForClassTypes.assertThat(submissionFiles.getFiles(FileType.FLATFILE).size()).isEqualTo(flatfile ? 1 : 0);
                     AssertionsForClassTypes.assertThat(submissionFiles.getFiles(FileType.TSV).size()).isEqualTo(tab ? 1 : 0);

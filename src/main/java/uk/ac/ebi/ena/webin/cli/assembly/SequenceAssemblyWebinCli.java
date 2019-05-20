@@ -23,24 +23,37 @@ import uk.ac.ebi.ena.webin.cli.manifest.processor.RunProcessor;
 import uk.ac.ebi.ena.webin.cli.manifest.processor.StudyProcessor;
 
 
-public class SequenceAssemblyWebinCli extends SequenceWebinCli<SequenceAssemblyManifest> {
-    @Override
-    public WebinCliContext getContext() {
+public class 
+SequenceAssemblyWebinCli extends SequenceWebinCli<SequenceAssemblyManifest> 
+{
+    
+    public
+    SequenceAssemblyWebinCli( boolean test_mode )
+    {
+        super( test_mode );
+    }
+
+
+    @Override public WebinCliContext 
+    getContext() 
+    {
         return WebinCliContext.sequence;
     }
 
-    @Override
-    protected SequenceAssemblyManifest createManifestReader() {
+    
+    @Override protected SequenceAssemblyManifest 
+    createManifestReader() 
+    {
         // Create manifest parser which will also set the study field.
-
-        return new SequenceAssemblyManifest(
-                isMetadataServiceActive(MetadataService.STUDY)    ? new StudyProcessor( getParameters(), this::setStudy ) : null,
-                isMetadataServiceActive(MetadataService.RUN)      ? new RunProcessor( getParameters(), this::setRunRef ) : null,
-                isMetadataServiceActive(MetadataService.ANALYSIS) ? new AnalysisProcessor( getParameters(), this::setAnalysisRef ) : null );
+        return getInitialisationTestMode() ? new SequenceAssemblyManifest( null, null, null ) 
+                                           : new SequenceAssemblyManifest( new StudyProcessor( getParameters(), this::setStudy ),
+                                                                           new RunProcessor( getParameters(), this::setRunRef ),
+                                                                           new AnalysisProcessor( getParameters(), this::setAnalysisRef ) );
     }
 
-    @Override
-    protected void readManifest(Path inputDir, File manifestFile)
+    
+    @Override protected void 
+    readManifest( Path inputDir, File manifestFile )
     {
     	getManifestReader().readManifest(inputDir, manifestFile);
     	setSubmissionOptions(getManifestReader().getSubmissionOptions());
@@ -55,9 +68,10 @@ public class SequenceAssemblyWebinCli extends SequenceWebinCli<SequenceAssemblyM
 		if(getStudy()!=null&&getStudy().getLocusTags()!=null)
  			getSubmissionOptions().locusTagPrefixes = Optional.of( getStudy().getLocusTags());
 	}
+    
 
-    @Override
-    Element makeAnalysisType( AssemblyInfoEntry entry )
+    @Override Element 
+    makeAnalysisType( AssemblyInfoEntry entry )
     {
         return new Element( WebinCliContext.sequence.getXmlElement() );
     }

@@ -32,15 +32,17 @@ import uk.ac.ebi.ena.webin.cli.entity.Study;
 import uk.ac.ebi.ena.webin.cli.submit.SubmissionBundle;
 
 public class
-TranscriptomeAssemblyXmlTest {
-    @Before
-    public void
-    before() {
+TranscriptomeAssemblyXmlTest
+{
+
+    @Before public void
+    before() 
+    {
         Locale.setDefault(Locale.UK);
     }
 
     
-    @Test public void
+    @SuppressWarnings( "serial" ) @Test public void
     testAnalysisXML_AssemblyInfo_WithFastaFile() 
     {
     	Path fastaFile = WebinCliTestUtils.createTempFile( ">123\nACGT" );
@@ -49,7 +51,7 @@ TranscriptomeAssemblyXmlTest {
     	SubmissionFile submissionFile = new SubmissionFile( FileType.FASTA,fastaFile.toFile() );
     	submissionFiles.addFile( submissionFile );
     	submissionOptions.submissionFiles = Optional.of( submissionFiles );
-        TranscriptomeAssemblyWebinCli cli = new TranscriptomeAssemblyWebinCli();
+        TranscriptomeAssemblyWebinCli cli = new TranscriptomeAssemblyWebinCli( false );
         String name = "test_transcriptome";
         cli.setName( name );
         cli.getParameters().setInputDir( fastaFile.getParent().toFile() );
@@ -96,15 +98,16 @@ TranscriptomeAssemblyXmlTest {
                       + "</ANALYSIS_SET>\n" );
     }
 
-    @Test
-    public void
-    testAnalysisXML_Manifest_WithFlatFile() {
+    
+    @Test public void
+    testAnalysisXML_Manifest_WithFlatFile() 
+    {
         String name       = "test_transcriptome";
-        Path flatFile     = WebinCliTestUtils.createGzippedTempFile("flatfile.dat.gz", "ID   ;");
+        Path flatFile     = WebinCliTestUtils.createGzippedTempFile( "flatfile.dat.gz", "ID   ;" );
         Path inputDir     = flatFile.getParent();
         String descr      = "some-descr";
         Path manifestFile = WebinCliTestUtils.createTempFile( "manifest.txt", inputDir,
-                "NAME\t" + name + "\n"
+                                                              "NAME\t" + name + "\n"
                                                             + "DESCRIPTION " + descr   + "\n"
                                                             + "SAMPLE\ttest_sample\n"
                                                             + "STUDY\ttest_study\n"
@@ -113,27 +116,28 @@ TranscriptomeAssemblyXmlTest {
                                                             + "TPA\ttrue\n"
                                                             + "FLATFILE\t" + flatFile.getFileName() + "\n" );
 
-        WebinCliParameters parameters = AssemblyTestUtils.createWebinCliParameters(manifestFile, inputDir);
+        WebinCliParameters parameters = AssemblyTestUtils.createWebinCliParameters( manifestFile, inputDir );
 
-        TranscriptomeAssemblyWebinCli cli = new TranscriptomeAssemblyWebinCli();
+        TranscriptomeAssemblyWebinCli cli = new TranscriptomeAssemblyWebinCli( true );
 
-        cli.setMetadataServiceActive(false);
         Sample sample = new Sample();
-        sample.setBiosampleId("test_sample");
-        cli.setSample(sample);
+        sample.setBiosampleId( "test_sample" );
+        cli.setSample( sample );
 
         Study study = new Study();
-        study.setProjectId("test_study");
-        cli.setStudy(study);
+        study.setProjectId( "test_study" );
+        cli.setStudy( study );
+        cli.setInitialisationTestMode( true );
+        
+        try 
+        {
+            cli.readManifest( parameters );
+        } finally 
+        {
+            SubmissionBundle sb = WebinCliTestUtils.prepareSubmissionBundle( cli );
+            String analysisXml = WebinCliTestUtils.readXmlFromSubmissionBundle( sb, SubmissionBundle.SubmissionXMLFileType.ANALYSIS );
 
-        try {
-            cli.readManifest(parameters);
-        } finally {
-            SubmissionBundle sb = WebinCliTestUtils.prepareSubmissionBundle(cli);
-
-            String analysisXml = WebinCliTestUtils.readXmlFromSubmissionBundle(sb, SubmissionBundle.SubmissionXMLFileType.ANALYSIS);
-
-            WebinCliTestUtils.assertAnalysisXml(analysisXml,
+            WebinCliTestUtils.assertAnalysisXml( analysisXml,
                     "<ANALYSIS_SET>\n" +
                             "<ANALYSIS>\n" +
                             "<TITLE>Transcriptome assembly: test_transcriptome</TITLE>\n" +
@@ -149,7 +153,7 @@ TranscriptomeAssemblyXmlTest {
                             "</TRANSCRIPTOME_ASSEMBLY>\n" +
                             "</ANALYSIS_TYPE>\n" +
                             "<FILES>\n" +
-                            "      <FILE filename=\"webin-cli/transcriptome/" + name + "/" + flatFile.getFileName() + "\" filetype=\"flatfile\" checksum_method=\"MD5\" checksum=\"e334ca8a758084ba2f9f5975e798039e\" />\n" +
+                            "      <FILE filename=\"webin-cli-test/transcriptome/" + name + "/" + flatFile.getFileName() + "\" filetype=\"flatfile\" checksum_method=\"MD5\" checksum=\"e334ca8a758084ba2f9f5975e798039e\" />\n" +
                             "</FILES>\n" +
                             "</ANALYSIS>\n" +
                             "</ANALYSIS_SET>");

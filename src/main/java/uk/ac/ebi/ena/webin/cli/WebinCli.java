@@ -10,11 +10,15 @@
  */
 package uk.ac.ebi.ena.webin.cli;
 
-import java.io.*;
+import java.io.File;
 import java.lang.management.ManagementFactory;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.fusesource.jansi.AnsiConsole;
@@ -26,7 +30,6 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.FileAppender;
 import ch.qos.logback.core.OutputStreamAppender;
-
 import picocli.CommandLine;
 import uk.ac.ebi.embl.api.entry.genomeassembly.AssemblyInfoEntry;
 import uk.ac.ebi.embl.api.validation.ValidationEngineException;
@@ -166,30 +169,31 @@ public class WebinCli {
 		logger.addAppender( fileAppender );
 	}
 
+	
 	void
-	execute(WebinCliParameters parameters) throws Exception
+	execute( WebinCliParameters parameters ) throws Exception
 	{
 		context = params.context;
 
 		// initTimedConsoleLogger();
-		initTimedFileLogger(parameters);
-
-		AbstractWebinCli<?> validator = context.getValidatorClass().newInstance();
+		initTimedFileLogger( parameters );
+		
+		AbstractWebinCli<?> validator = (AbstractWebinCli<?>) context.getValidatorClass()
+		                                                             .getConstructors()[ 0 ]
+		                                                             .newInstance( parameters.isTestMode() );
 		validator.setTestMode( params.test );
 		validator.readManifest( parameters );
 
-		if (params.validate || validator.getSubmissionBundle() == null) {
-			doValidation(validator);
-		}
+		if( params.validate || validator.getSubmissionBundle() == null )
+			doValidation( validator );
 
-		if (params.submit) {
-			doSubmit(validator);
-		}
+		if( params.submit )
+			doSubmit( validator );
 	}
 
 	
 	private void
-	doValidation(AbstractWebinCli<?> validator)
+	doValidation( AbstractWebinCli<?> validator )
 	{
 	   try 
 	   {

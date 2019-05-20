@@ -332,8 +332,8 @@ WebinCliTest
         Path inputDir = WebinCliTestUtils.createTempDir().toPath();
         Path outputDir = WebinCliTestUtils.createTempDir().toPath();
 
-        Path fastafile = WebinCliTestUtils.createTempFileFromResource("uk/ac/ebi/ena/webin/cli/transcriptome/valid_fasta.fasta.gz", inputDir, false );
-        Path infofile =  WebinCliTestUtils.createTempFile("info.txt", inputDir, getTranscriptomeManifestFields(name));
+        Path fastafile = WebinCliTestUtils.createTempFileFromResource( "uk/ac/ebi/ena/webin/cli/transcriptome/valid_fasta.fasta.gz", inputDir, false );
+        Path infofile =  WebinCliTestUtils.createTempFile( "info.txt", inputDir, getTranscriptomeManifestFields( name ) );
 
         testWebinCli( WebinCliContext.transcriptome,
                       inputDir,

@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
-import java.util.EnumSet;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -27,13 +26,27 @@ import uk.ac.ebi.ena.webin.cli.submit.SubmissionBundleHelper;
 import uk.ac.ebi.ena.webin.cli.utils.FileUtils;
 
 public abstract class 
-AbstractWebinCli<T extends ManifestReader> implements WebinCliWrapper<T>
+AbstractWebinCli<T extends ManifestReader>
 {
-
+    public
+    AbstractWebinCli( boolean test_mode )
+    {
+        setTestMode( test_mode );
+    }
+    
+    
+    protected enum 
+    MetadataService 
+    {
+        SAMPLE,
+        STUDY,
+        SOURCE,
+        RUN,
+        ANALYSIS
+    }
+    
     private String name; 
     private WebinCliParameters parameters = new WebinCliParameters();
-
-    private boolean testMode;
 
     private T manifestReader;
 
@@ -41,37 +54,30 @@ AbstractWebinCli<T extends ManifestReader> implements WebinCliWrapper<T>
     private File processDir;
     private File submitDir;
 
+    
+    /**
+     * Get the submission context.
+     */
+    protected abstract WebinCliContext getContext();
+    
+    
+    /**
+     * Validate the submission.
+     * */
+    protected abstract void validate() throws WebinCliException;
 
-    // MetadataService
+    
+    /**
+     * Prepare the submission bundle.
+     * */
+    protected abstract void prepareSubmissionBundle();
 
-    private final EnumSet<MetadataService> activeMetadataService = EnumSet.allOf(MetadataService.class);
-
-    @Override
-    public boolean isMetadataServiceActive(AbstractWebinCli.MetadataService metadataService) {
-        return activeMetadataService.contains(metadataService);
-    }
-
-    @Override
-    public void setMetadataServiceActive(AbstractWebinCli.MetadataService metadataService, boolean isActive) {
-        if (isActive) {
-            activeMetadataService.add(metadataService);
-        }
-        else {
-            activeMetadataService.remove(metadataService);
-        }
-    }
-
-    @Override
-    public void setMetadataServiceActive(boolean isActive) {
-        for (MetadataService metadataService: MetadataService.values()) {
-            setMetadataServiceActive(metadataService, isActive);
-        }
-    }
-
-
-
+    
     private String description;
-
+    private boolean initialisationTestMode;
+    private boolean validationTestMode;
+    private boolean submissionTestMode;
+    
     public String 
     getDescription()
     {
@@ -93,10 +99,9 @@ AbstractWebinCli<T extends ManifestReader> implements WebinCliWrapper<T>
     /**
      * Read manifest file.
      */
-    protected abstract void readManifest(Path inputDir, File manifestFile);
+    protected abstract void readManifest( Path inputDir, File manifestFile );
 
 
-    @Override
     public final void
     readManifest( WebinCliParameters parameters )
     {
@@ -141,55 +146,80 @@ AbstractWebinCli<T extends ManifestReader> implements WebinCliWrapper<T>
         }
     }
 
-    private void setName() {
-        if (manifestReader.getName() != null) {
-            this.name = manifestReader.getName().trim().replaceAll("\\s+", "_");
+    
+
+    private void 
+    setName() 
+    {
+        if( manifestReader.getName() != null ) 
+        {
+            this.name = manifestReader.getName().trim().replaceAll( "\\s+", "_" );
         }
     }
 
-    public T getManifestReader() {
+    
+    public T 
+    getManifestReader() 
+    {
         return manifestReader;
     }
 
-    public File getValidationDir() {
+    
+    public File 
+    getValidationDir() 
+    {
         return validationDir;
     }
 
-    public void setValidationDir(File validationDir) {
+    
+    public void 
+    setValidationDir( File validationDir ) 
+    {
         this.validationDir = validationDir;
     }
 
-    public File getProcessDir() {
+    
+    public File 
+    getProcessDir() 
+    {
         return processDir;
     }
 
-    public void setProcessDir(File processDir) {
+    
+    public void 
+    setProcessDir( File processDir ) 
+    {
         this.processDir = processDir;
     }
 
 
-    public File getSubmitDir() {
+    public File 
+    getSubmitDir() 
+    {
         return submitDir;
     }
 
-    public void setSubmitDir(File submitDir) {
+    
+    public void 
+    setSubmitDir( File submitDir ) 
+    {
         this.submitDir = submitDir;
     }
 
-    public String getAlias () {
+    
+    public String 
+    getAlias ()
+    {
         String alias = "webin-" + getContext().name() + "-" + getName();
         return alias;
     }
 
+    
     private String
     getSubmissionBundleFileName()
     {
         return new File( getSubmitDir(), WebinCliConfig.SUBMISSION_BUNDLE_FILE_SUFFIX).getPath();
     }
-
-
-
-
 
 
     protected File
@@ -198,7 +228,7 @@ AbstractWebinCli<T extends ManifestReader> implements WebinCliWrapper<T>
         return WebinCli.getReportFile( getValidationDir(), filename, WebinCliConfig.REPORT_FILE_SUFFIX );
     }
 
-    @Override
+    
     public SubmissionBundle
     getSubmissionBundle()
     {
@@ -240,24 +270,61 @@ AbstractWebinCli<T extends ManifestReader> implements WebinCliWrapper<T>
     }
     
     
-    public boolean 
-    getTestMode()
+    public void
+    setTestMode( boolean test_mode )
     {
-        return this.testMode;
+//        setInitTestMode( test_mode );
+//        setValidationTestMode( test_mode );
+        setSubmissionTestMode( test_mode );
     }
 
     
     public void
-    setTestMode( boolean test_mode )
+    setInitialisationTestMode( boolean test_mode )
     {
-        this.testMode = test_mode;
+        this.initialisationTestMode = test_mode;
+    }
+
+    
+    public void
+    setValidationTestMode( boolean test_mode )
+    {
+        this.validationTestMode = test_mode;
+    }
+
+    
+    public void
+    setSubmissionTestMode( boolean test_mode )
+    {
+        this.submissionTestMode = test_mode;
+    }
+    
+    
+    public boolean
+    getInitialisationTestMode()
+    {
+        return this.initialisationTestMode;
+    }
+
+    
+    public boolean
+    getValidationTestMode()
+    {
+        return this.validationTestMode;
+    }
+
+    
+    public boolean
+    getSubmissionTestMode()
+    {
+        return this.submissionTestMode;
     }
 
     
     public Path 
     getUploadRoot()
     {
-    	return Paths.get( getTestMode() ? "webin-cli-test" : "webin-cli" );
+    	return Paths.get( getSubmissionTestMode() ? "webin-cli-test" : "webin-cli" );
     }
     
 }

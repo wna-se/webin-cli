@@ -10,51 +10,68 @@
  */
 package uk.ac.ebi.ena.webin.cli;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.util.List;
+
 import org.junit.Test;
 
-import uk.ac.ebi.ena.webin.cli.assembly.GenomeAssemblyWebinCli;
 import uk.ac.ebi.ena.webin.cli.assembly.TranscriptomeAssemblyWebinCli;
+import uk.ac.ebi.ena.webin.cli.manifest.ManifestFieldDefinition;
+import uk.ac.ebi.ena.webin.cli.manifest.ManifestReader;
 import uk.ac.ebi.ena.webin.cli.rawreads.RawReadsWebinCli;
 
-import java.util.EnumSet;
-
-import static org.junit.Assert.*;
-
-public class AbstractWebinCliTest {
-
-    @Test
-    public void
-    testMetadataServiceActive() {
-        GenomeAssemblyWebinCli cli = new GenomeAssemblyWebinCli();
-        EnumSet<WebinCliWrapper.MetadataService> services = EnumSet.allOf(WebinCliWrapper.MetadataService.class);
-        services.forEach(metadataService -> assertTrue(cli.isMetadataServiceActive(metadataService)));
-        cli.setMetadataServiceActive(false);
-        services.forEach(metadataService -> assertFalse(cli.isMetadataServiceActive(metadataService)));
-        cli.setMetadataServiceActive(true);
-        services.forEach(metadataService -> assertTrue(cli.isMetadataServiceActive(metadataService)));
-        services.forEach(metadataService -> cli.setMetadataServiceActive(metadataService, false));
-        services.forEach(metadataService -> assertFalse(cli.isMetadataServiceActive(metadataService)));
-        services.forEach(metadataService -> cli.setMetadataServiceActive(metadataService, true));
-        services.forEach(metadataService -> assertTrue(cli.isMetadataServiceActive(metadataService)));
+public class 
+AbstractWebinCliTest 
+{
+    static class
+    TestManifest extends ManifestReader
+    {
+        public TestManifest( List<ManifestFieldDefinition> fields ) { super( fields ); }
+        @Override public String getName() { return null; }
+        @Override public String getDescription() { return null; }
+        @Override protected void processManifest() { }
     }
+    
+    
+    abstract static class 
+    TestCli extends AbstractWebinCli<TestManifest>
+    {
+        protected TestCli( boolean test_mode ) { super( test_mode ); }
+        @Override protected void validate() throws WebinCliException { }
+        @Override protected void prepareSubmissionBundle() { }
+        @Override protected TestManifest createManifestReader() { return null; }
+        @Override protected void readManifest( Path inputDir, File manifestFile ) { }
+    }
+    
+    
+    @Test public void
+    testGetAlias() 
+    {
+        TestCli genomeAssemblyWebinCli = new TestCli( true ) {
+            @Override protected WebinCliContext getContext() { return WebinCliContext.genome; }
+        };
+        genomeAssemblyWebinCli.setName( "TEST_NAME" );
+        assertEquals( "webin-genome-TEST_NAME", genomeAssemblyWebinCli.getAlias() );
 
-    @Test
-    public void
-    testGetAlias() {
-        GenomeAssemblyWebinCli genomeAssemblyWebinCli = new GenomeAssemblyWebinCli();
-        genomeAssemblyWebinCli.setName("TEST_NAME");
-        assertEquals("webin-genome-TEST_NAME", genomeAssemblyWebinCli.getAlias());
+        TestCli transcriptomeAssemblyWebinCli = new TestCli( true ) {
+            @Override protected WebinCliContext getContext() { return WebinCliContext.transcriptome; }
+        };
+        transcriptomeAssemblyWebinCli.setName( "TEST_NAME" );
+        assertEquals( "webin-transcriptome-TEST_NAME", transcriptomeAssemblyWebinCli.getAlias() );
 
-        TranscriptomeAssemblyWebinCli transcriptomeAssemblyWebinCli = new TranscriptomeAssemblyWebinCli();
-        transcriptomeAssemblyWebinCli.setName("TEST_NAME");
-        assertEquals("webin-transcriptome-TEST_NAME", transcriptomeAssemblyWebinCli.getAlias());
+        TestCli sequenceAssemblyWebinCli = new TestCli( true ) {
+            @Override protected WebinCliContext getContext() { return WebinCliContext.sequence; }
+        };
+        sequenceAssemblyWebinCli.setName( "TEST_NAME" );
+        assertEquals( "webin-sequence-TEST_NAME", sequenceAssemblyWebinCli.getAlias() );
 
-//        SequenceAssemblyWebinCli sequenceAssemblyWebinCli = new SequenceAssemblyWebinCli();
-//        sequenceAssemblyWebinCli.setName("TEST_NAME");
-//        assertEquals("webin-sequence-TEST_NAME", sequenceAssemblyWebinCli.getAlias());
-
-        RawReadsWebinCli rawReadsWebinCli = new RawReadsWebinCli();
-        rawReadsWebinCli.setName("TEST_NAME");
-        assertEquals("webin-reads-TEST_NAME", rawReadsWebinCli.getAlias());
+        TestCli rawReadsWebinCli = new TestCli( true ) {
+            @Override protected WebinCliContext getContext() { return WebinCliContext.reads; }
+        };
+        rawReadsWebinCli.setName( "TEST_NAME" );
+        assertEquals( "webin-reads-TEST_NAME", rawReadsWebinCli.getAlias() );
     }
 }

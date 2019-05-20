@@ -56,6 +56,13 @@ import uk.ac.ebi.ena.webin.cli.utils.FileUtils;
 public abstract class 
 SequenceWebinCli<T extends ManifestReader> extends AbstractWebinCli<T>
 {
+    public 
+    SequenceWebinCli( boolean test_mode )
+    {
+        super( test_mode );
+    }
+
+
     private static final String DIGEST_NAME = "MD5";
     protected final static String ANALYSIS_XML = "analysis.xml";
 
@@ -307,17 +314,17 @@ SequenceWebinCli<T extends ManifestReader> extends AbstractWebinCli<T>
 
 
         getSubmissionOptions().ignoreErrors = false;
-        try {
+        try
+        {
             IgnoreErrorsService ignoreErrorsService = new IgnoreErrorsService.Builder()
-                    .setCredentials(getParameters().getUsername(),
-                            getParameters().getPassword())
-                    .setTest(getTestMode())
-                    .build();
+                                                                             .setCredentials( getParameters().getUsername(), getParameters().getPassword() )
+                                                                             .setTest( getValidationTestMode() )
+                                                                             .build();
 
-            getSubmissionOptions().ignoreErrors = ignoreErrorsService.getIgnoreErrors(getContext().name(), getName());
-        }
-        catch (RuntimeException ex) {
-            log.warn(WebinCliMessage.Service.IGNORE_ERRORS_SERVICE_SYSTEM_ERROR.format());
+            getSubmissionOptions().ignoreErrors = ignoreErrorsService.getIgnoreErrors( getContext().name(), getName() );
+        } catch( RuntimeException ex ) 
+        {
+            log.warn( WebinCliMessage.Service.IGNORE_ERRORS_SERVICE_SYSTEM_ERROR.format() );
         }
 
         try

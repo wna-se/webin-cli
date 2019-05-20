@@ -24,9 +24,18 @@ import uk.ac.ebi.ena.webin.cli.manifest.processor.SampleProcessor;
 import uk.ac.ebi.ena.webin.cli.manifest.processor.SourceFeatureProcessor;
 import uk.ac.ebi.ena.webin.cli.manifest.processor.StudyProcessor;
 
-public class TranscriptomeAssemblyWebinCli extends SequenceWebinCli<TranscriptomeAssemblyManifest> {
+public class 
+TranscriptomeAssemblyWebinCli extends SequenceWebinCli<TranscriptomeAssemblyManifest>
+{
 
-	@Override
+	public 
+	TranscriptomeAssemblyWebinCli( boolean test_mode )
+    {
+        super( test_mode );
+    }
+
+	
+    @Override
 	public WebinCliContext getContext() {
 		return WebinCliContext.transcriptome;
 	}
@@ -35,12 +44,12 @@ public class TranscriptomeAssemblyWebinCli extends SequenceWebinCli<Transcriptom
 	TranscriptomeAssemblyManifest createManifestReader() 
 	{
 		// Create manifest parser which will also set the sample and study fields.
-		return new TranscriptomeAssemblyManifest(
-				isMetadataServiceActive(MetadataService.SAMPLE) ? new SampleProcessor(getParameters(), this::setSample) : null,
-				isMetadataServiceActive(MetadataService.STUDY)  ? new StudyProcessor(getParameters(), this::setStudy) : null,
-				isMetadataServiceActive(MetadataService.SOURCE) ? new SourceFeatureProcessor(getParameters(), this::setSource ):null,
-				isMetadataServiceActive(MetadataService.RUN)    ? new RunProcessor( getParameters(), this::setRunRef ) : null,
-				isMetadataServiceActive(MetadataService.ANALYSIS) ? new AnalysisProcessor( getParameters(), this::setAnalysisRef ) : null );
+		return getInitialisationTestMode() ? new TranscriptomeAssemblyManifest( null, null, null, null, null )
+		                                   : new TranscriptomeAssemblyManifest( new SampleProcessor( getParameters(), this::setSample ),
+		                                                                        new StudyProcessor( getParameters(), this::setStudy ),
+		                                                                        new SourceFeatureProcessor( getParameters(), this::setSource ),
+		                                                                        new RunProcessor( getParameters(), this::setRunRef ),
+		                                                                        new AnalysisProcessor( getParameters(), this::setAnalysisRef ) );
 	}
 
 	@Override
@@ -59,7 +68,7 @@ public class TranscriptomeAssemblyWebinCli extends SequenceWebinCli<Transcriptom
 		if(getStudy()!=null&&getStudy().getLocusTags()!=null)
  			getSubmissionOptions().locusTagPrefixes = Optional.of( getStudy().getLocusTags());
 		if(getSource()!=null)
-		getSubmissionOptions().source = Optional.of(getSource());
+		    getSubmissionOptions().source = Optional.of(getSource());
 	}
 
 	@Override	

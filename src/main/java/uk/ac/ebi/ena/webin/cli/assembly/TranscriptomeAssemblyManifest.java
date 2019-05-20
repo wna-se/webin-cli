@@ -140,7 +140,6 @@ TranscriptomeAssemblyManifest extends ManifestReader
 	@Override public void
 	processManifest() 
 	{
-
 		name = getResult().getValue( Field.NAME );
 		
 		if( StringUtils.isBlank( name ) )

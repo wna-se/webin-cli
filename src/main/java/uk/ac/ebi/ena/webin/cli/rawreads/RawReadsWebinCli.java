@@ -45,15 +45,16 @@ import htsjdk.samtools.cram.CRAMException;
 import htsjdk.samtools.util.Log;
 import htsjdk.samtools.util.Log.LogLevel;
 import net.sf.cram.ref.ENAReferenceSource;
-
 import uk.ac.ebi.embl.api.validation.DefaultOrigin;
 import uk.ac.ebi.embl.api.validation.Origin;
 import uk.ac.ebi.embl.api.validation.Severity;
 import uk.ac.ebi.embl.api.validation.ValidationMessage;
 import uk.ac.ebi.embl.api.validation.ValidationResult;
-import uk.ac.ebi.ena.webin.cli.*;
-import uk.ac.ebi.ena.webin.cli.entity.Sample;
-import uk.ac.ebi.ena.webin.cli.entity.Study;
+import uk.ac.ebi.ena.webin.cli.AbstractWebinCli;
+import uk.ac.ebi.ena.webin.cli.WebinCli;
+import uk.ac.ebi.ena.webin.cli.WebinCliContext;
+import uk.ac.ebi.ena.webin.cli.WebinCliException;
+import uk.ac.ebi.ena.webin.cli.WebinCliMessage;
 import uk.ac.ebi.ena.webin.cli.manifest.processor.SampleProcessor;
 import uk.ac.ebi.ena.webin.cli.manifest.processor.StudyProcessor;
 import uk.ac.ebi.ena.webin.cli.rawreads.RawReadsFile.ChecksumMethod;
@@ -73,6 +74,14 @@ RawReadsWebinCli extends AbstractWebinCli<RawReadsManifest>
         System.setProperty( "samjdk.use_cram_ref_download", Boolean.TRUE.toString() );
     }
     
+    
+    public
+    RawReadsWebinCli( boolean test_mode )
+    {
+        super( test_mode );
+    }
+
+    
     private static final String RUN_XML = "run.xml";
     private static final String EXPERIMENT_XML = "experiment.xml";
     private static final String BAM_STAR = "*";
@@ -83,23 +92,26 @@ RawReadsWebinCli extends AbstractWebinCli<RawReadsManifest>
     //TODO value should be estimated via validation
     private boolean is_paired;
 
-    private static final Logger log = LoggerFactory.getLogger(RawReadsWebinCli.class);
+    private static final Logger log = LoggerFactory.getLogger( RawReadsWebinCli.class );
 
-    @Override
-    public WebinCliContext getContext() {
+    
+    @Override public WebinCliContext 
+    getContext() 
+    {
         return WebinCliContext.reads;
     }
 
-    @Override
-    protected RawReadsManifest createManifestReader() {
-
+    
+    @Override protected RawReadsManifest 
+    createManifestReader() 
+    {
         // Create manifest parser which will also set the sample and study fields.
-
         return new RawReadsManifest(
-                isMetadataServiceActive(MetadataService.SAMPLE) ? new SampleProcessor(getParameters(), (Sample sample) -> this.sampleId = sample.getBiosampleId()) : null,
-                isMetadataServiceActive(MetadataService.STUDY) ? new StudyProcessor(getParameters(), (Study study) -> this.studyId = study.getProjectId()) : null);
+                getInitialisationTestMode() ? null : new SampleProcessor( getParameters(), ( sample ) -> this.sampleId = sample.getBiosampleId() ),
+                getInitialisationTestMode() ? null : new StudyProcessor( getParameters(), ( study )   -> this.studyId  = study.getProjectId() ) );
     }
 
+    
     @Override
     protected void readManifest(Path inputDir, File manifestFile) {
         getManifestReader().readManifest( inputDir, manifestFile );

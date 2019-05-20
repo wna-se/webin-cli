@@ -165,13 +165,12 @@ public class GenomeAssemblyValidationTest {
     }
 
     private GenomeAssemblyWebinCli createValidator(File inputDir) {
-        GenomeAssemblyWebinCli cli = new GenomeAssemblyWebinCli();
+        GenomeAssemblyWebinCli cli = new GenomeAssemblyWebinCli( true );
         cli.setTestMode(true);
         cli.setInputDir(inputDir);
         cli.setValidationDir(validationDir);
         cli.setProcessDir(processDir);
         cli.setSubmitDir(submitDir);
-        cli.setMetadataServiceActive(false);
         cli.setSample(AssemblyTestUtils.getDefaultSample());
         cli.setSource(AssemblyTestUtils.getDefaultSourceFeature());
         cli.setStudy(new Study());
@@ -179,6 +178,7 @@ public class GenomeAssemblyValidationTest {
     }
 
     private GenomeAssemblyWebinCli initValidator(Path manifestFile, GenomeAssemblyWebinCli validator) {
+        validator.setInitialisationTestMode( true );
         validator.readManifest(AssemblyTestUtils.createWebinCliParameters(manifestFile.toFile(), validator.getInputDir()));
         return validator;
     }

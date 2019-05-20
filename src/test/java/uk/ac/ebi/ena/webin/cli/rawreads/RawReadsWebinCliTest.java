@@ -37,7 +37,6 @@ import htsjdk.samtools.SamReaderFactory;
 import htsjdk.samtools.ValidationStringency;
 import net.sf.cram.ref.ENAReferenceSource;
 import net.sf.cram.ref.ENAReferenceSource.LoggerWrapper;
-
 import uk.ac.ebi.embl.api.validation.ValidationMessage;
 import uk.ac.ebi.embl.api.validation.ValidationResult;
 import uk.ac.ebi.ena.webin.cli.WebinCliException;
@@ -62,7 +61,7 @@ RawReadsWebinCliTest
     @Test public void
     testXML()
     {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
         rr.setName( "SOME-NAME" );
         String result = rr.createRunXml( Collections.emptyList(), "SOME-EXPERIMENT-ID", "CENTER-NAME" );
         
@@ -74,7 +73,9 @@ RawReadsWebinCliTest
  
     @Test public void
     parseManifest() throws IOException {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
+        rr.setInitialisationTestMode( true );
+        
         Path fastq_file = WebinCliTestUtils.createGzippedTempFile("fastq.gz", "@1.1\nACGT\n@\n!@#$\n");
 
         WebinCliParameters parameters = new WebinCliParameters();
@@ -83,7 +84,6 @@ RawReadsWebinCliTest
                                                  ( getInfoPart() + "FASTQ " + fastq_file.toString() ).getBytes( StandardCharsets.UTF_8 ),
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive(false);
         rr.readManifest( parameters );
         rr.prepareSubmissionBundle();
         SubmissionBundle sb = rr.getSubmissionBundle();
@@ -93,7 +93,7 @@ RawReadsWebinCliTest
     
     @Test( expected = WebinCliException.class ) public void
     manifestTwoBAMs() throws IOException {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
 
         WebinCliParameters parameters = new WebinCliParameters();
         parameters.setInputDir( createOutputFolder() );
@@ -101,7 +101,6 @@ RawReadsWebinCliTest
                                                  ( "STUDY SRP123456789\nSAMPLE ERS198522\nPLATFORM ILLUMINA\nNAME SOME-FANCY-NAME\nBAM file1.bam\nBAM file2.bam" ).getBytes( StandardCharsets.UTF_8 ), 
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive(false);
         rr.readManifest( parameters );
         rr.prepareSubmissionBundle();
         SubmissionBundle sb = rr.getSubmissionBundle();
@@ -111,7 +110,7 @@ RawReadsWebinCliTest
     
     @Test( expected = WebinCliException.class ) public void
     manifestTwoCRAMs() throws IOException {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
 
         WebinCliParameters parameters = new WebinCliParameters();
         parameters.setInputDir( createOutputFolder() );
@@ -119,7 +118,6 @@ RawReadsWebinCliTest
                                                  ( "STUDY SRP123456789\nSAMPLE ERS198522\nPLATFORM ILLUMINA\nNAME SOME-FANCY-NAME\nCRAM file1.cram\nCRAM file2.cram" ).getBytes( StandardCharsets.UTF_8 ), 
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive(false);
 
         rr.readManifest( parameters );
         rr.prepareSubmissionBundle();
@@ -130,7 +128,7 @@ RawReadsWebinCliTest
     
     @Test( expected = WebinCliException.class ) public void
     manifestMixingFormats() throws IOException {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
 
         WebinCliParameters parameters = new WebinCliParameters();
         parameters.setInputDir( createOutputFolder() );
@@ -138,7 +136,6 @@ RawReadsWebinCliTest
                                                  ( "STUDY SRP123456789\nSAMPLE ERS198522\nPLATFORM ILLUMINA\nNAME SOME-FANCY-NAME\nBAM file1.bam\nCRAM file2.cram" ).getBytes( StandardCharsets.UTF_8 ), 
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive( false );
 
         rr.readManifest( parameters );
         rr.prepareSubmissionBundle();
@@ -149,7 +146,7 @@ RawReadsWebinCliTest
     
     @Test( expected = WebinCliException.class ) public void
     manifestNoFiles() throws IOException {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
 
         WebinCliParameters parameters = new WebinCliParameters();
         parameters.setInputDir( createOutputFolder() );
@@ -157,7 +154,6 @@ RawReadsWebinCliTest
                                                  ( "STUDY SRP123456789\nSAMPLE ERS198522\nPLATFORM ILLUMINA\nNAME SOME-FANCY-NAME" ).getBytes( StandardCharsets.UTF_8 ), 
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive( false );
 
         rr.readManifest( parameters );
         rr.prepareSubmissionBundle();
@@ -168,7 +164,7 @@ RawReadsWebinCliTest
     
     @Test( expected = WebinCliException.class ) public void
     manifestDoesFileNotExist() throws IOException {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
 
         WebinCliParameters parameters = new WebinCliParameters();
         parameters.setInputDir( createOutputFolder() );
@@ -176,7 +172,6 @@ RawReadsWebinCliTest
                                                  ( "STUDY SRP123456789\nSAMPLE ERS198522\nPLATFORM ILLUMINA\nNAME SOME-FANCY-NAME\nFASTQ yoba.fastq.gz.bz2 PHRED_33" ).getBytes( StandardCharsets.UTF_8 ), 
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive( false );
         rr.readManifest( parameters );
         rr.prepareSubmissionBundle();
         SubmissionBundle sb = rr.getSubmissionBundle();
@@ -186,7 +181,7 @@ RawReadsWebinCliTest
     
     @Test( expected = WebinCliException.class ) public void
     manifestFileIsDirectory() throws IOException {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
 
         WebinCliParameters parameters = new WebinCliParameters();
         parameters.setInputDir( createOutputFolder() );
@@ -194,7 +189,6 @@ RawReadsWebinCliTest
                                                  ( "STUDY SRP123456789\nSAMPLE ERS198522\nPLATFORM ILLUMINA\nNAME SOME-FANCY-NAME\nFASTQ " + createOutputFolder() + " PHRED_33" ).getBytes( StandardCharsets.UTF_8 ), 
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive( false );
         rr.readManifest( parameters );
         rr.prepareSubmissionBundle();
         SubmissionBundle sb = rr.getSubmissionBundle();
@@ -204,7 +198,7 @@ RawReadsWebinCliTest
     
     @Test( expected = WebinCliException.class ) public void
     manifestNoPath() throws IOException {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
 
         WebinCliParameters parameters = new WebinCliParameters();
         parameters.setInputDir( createOutputFolder() );
@@ -212,7 +206,6 @@ RawReadsWebinCliTest
                                                  ( "STUDY SRP123456789\nSAMPLE ERS198522\nPLATFORM ILLUMINA\nNAME SOME-FANCY-NAME\nFASTQ" ).getBytes( StandardCharsets.UTF_8 ), 
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive( false );
         rr.readManifest( parameters );
         rr.prepareSubmissionBundle();
         SubmissionBundle sb = rr.getSubmissionBundle();
@@ -222,7 +215,7 @@ RawReadsWebinCliTest
     
     @Test( expected = WebinCliException.class ) public void
     manifestNonASCIIPath() throws IOException {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
 
         URL url = RawReadsWebinCliTest.class.getClassLoader().getResource( "uk/ac/ebi/ena/webin/cli/rawreads/MG23S_431.fastq.gz" );
         File gz = new File( URLDecoder.decode( url.getFile(), "UTF-8" ) );
@@ -234,7 +227,6 @@ RawReadsWebinCliTest
                                                  ( getInfoPart() + "FASTQ " + file ).getBytes( StandardCharsets.UTF_8 ), 
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive( false );
         rr.readManifest( parameters );
         rr.prepareSubmissionBundle();
         SubmissionBundle sb = rr.getSubmissionBundle();
@@ -244,7 +236,7 @@ RawReadsWebinCliTest
     
     @Test( expected = WebinCliException.class ) public void
     manifestFastqNoScoring() throws IOException {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
 
         WebinCliParameters parameters = new WebinCliParameters();
         parameters.setInputDir( createOutputFolder() );
@@ -252,7 +244,6 @@ RawReadsWebinCliTest
                                                  ( "STUDY SRP123456789\nSAMPLE ERS198522\nPLATFORM ILLUMINA\nNAME SOME-FANCY-NAME\nFASTQ file.fq.gz" ).getBytes( StandardCharsets.UTF_8 ), 
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive(false);
         rr.readManifest( parameters );
         rr.prepareSubmissionBundle();
         SubmissionBundle sb = rr.getSubmissionBundle();
@@ -261,8 +252,9 @@ RawReadsWebinCliTest
     
     
     @Test( expected = WebinCliException.class ) public void
-    manifestBAMScoring() throws IOException {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+    manifestBAMScoring() throws IOException 
+    {
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
 
         WebinCliParameters parameters = new WebinCliParameters();
         parameters.setInputDir( createOutputFolder() );
@@ -280,7 +272,7 @@ RawReadsWebinCliTest
     
     @Test( expected = WebinCliException.class ) public void
     manifestBAMCompression() throws IOException {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
 
         WebinCliParameters parameters = new WebinCliParameters();
         parameters.setInputDir( createOutputFolder() );
@@ -288,7 +280,6 @@ RawReadsWebinCliTest
                                                  ( "STUDY SRP123456789\nSAMPLE ERS198522\nPLATFORM ILLUMINA\nNAME SOME-FANCY-NAME\nBAM file.fq.gz" ).getBytes( StandardCharsets.UTF_8 ),
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive( false );
 
         rr.readManifest( parameters );
         rr.prepareSubmissionBundle();
@@ -299,7 +290,7 @@ RawReadsWebinCliTest
     
     @Test( expected = WebinCliException.class ) public void
     manifestCRAMScoring() throws IOException {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
 
         WebinCliParameters parameters = new WebinCliParameters();
         parameters.setInputDir( createOutputFolder() );
@@ -318,7 +309,7 @@ RawReadsWebinCliTest
     @Test( expected = WebinCliException.class ) public void
     manifestCRAMCompression() throws IOException
     {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
 
         WebinCliParameters parameters = new WebinCliParameters();
         parameters.setInputDir( createOutputFolder() );
@@ -326,7 +317,6 @@ RawReadsWebinCliTest
                                                  ( "STUDY SRP123456789\nSAMPLE ERS198522\nPLATFORM ILLUMINA\nNAME SOME-FANCY-NAME\nCRAM file.fq.gz" ).getBytes( StandardCharsets.UTF_8 ),
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive( false );
         
         rr.readManifest( parameters );
         rr.prepareSubmissionBundle();
@@ -338,7 +328,9 @@ RawReadsWebinCliTest
     @Test public void
     testCorrectBAMManifest() throws IOException
     {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
+        rr.setInitialisationTestMode( true );
+        
         URL url = RawReadsWebinCliTest.class.getClassLoader().getResource( "uk/ac/ebi/ena/webin/cli/rawreads/OUTO500m_MetOH_narG_OTU18.bam" );
         Path file = Paths.get( new File( url.getFile() ).getCanonicalPath() );
         WebinCliParameters parameters = new WebinCliParameters();
@@ -348,7 +340,6 @@ RawReadsWebinCliTest
                                                  + Field.DESCRIPTION + " description text" ).getBytes( StandardCharsets.UTF_8 ),
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive( false );
         rr.readManifest( parameters );
         rr.prepareSubmissionBundle();
         SubmissionBundle sb = rr.getSubmissionBundle();
@@ -384,7 +375,9 @@ RawReadsWebinCliTest
     @Test public void
     testCorrectBAM() throws IOException
     {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
+        rr.setInitialisationTestMode( true );
+        
         URL url = RawReadsWebinCliTest.class.getClassLoader().getResource( "uk/ac/ebi/ena/webin/cli/rawreads/OUTO500m_MetOH_narG_OTU18.bam" );
         Path file = Paths.get( new File( url.getFile() ).getCanonicalPath() );
         WebinCliParameters parameters = new WebinCliParameters();
@@ -393,7 +386,6 @@ RawReadsWebinCliTest
                                                  ( getInfoPart() + "BAM " + file ).getBytes( StandardCharsets.UTF_8 ), 
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive( false );
         rr.readManifest( parameters );
         rr.validate();
     }
@@ -417,7 +409,8 @@ RawReadsWebinCliTest
     @Test public void
     testIncorrectBAM() throws IOException
     {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
+        rr.setInitialisationTestMode( true );
         URL url = RawReadsWebinCliTest.class.getClassLoader().getResource( "uk/ac/ebi/ena/webin/cli/rawreads/m54097_170904_165950.subreads.bam" );
         File file = new File( URLDecoder.decode( url.getFile(), "UTF-8" ) );
         WebinCliParameters parameters = new WebinCliParameters();
@@ -427,9 +420,6 @@ RawReadsWebinCliTest
                                                  + "BAM " + file ).getBytes( StandardCharsets.UTF_8 ), 
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-
-        rr.setMetadataServiceActive( false );
-
         rr.readManifest( parameters );
         
         try
@@ -448,7 +438,8 @@ RawReadsWebinCliTest
     @Test public void
     testCorrectFastq() throws IOException
     {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
+        rr.setInitialisationTestMode( true );
         URL url = RawReadsWebinCliTest.class.getClassLoader().getResource( "uk/ac/ebi/ena/webin/cli/rawreads/ZeroCycle_ES0_TTCCTT20NGA_0.txt.gz" );
         Path file = Paths.get( new File( url.getFile() ).getCanonicalPath() );
         WebinCliParameters parameters = new WebinCliParameters();
@@ -457,7 +448,6 @@ RawReadsWebinCliTest
                                                  ( getInfoPart() + "FASTQ " + file ).getBytes( StandardCharsets.UTF_8 ),
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive( false );
         rr.readManifest( parameters );
         rr.validate();
         rr.prepareSubmissionBundle();
@@ -470,7 +460,7 @@ RawReadsWebinCliTest
     @Test( expected = WebinCliException.class ) public void
     sameFilePairedFastq() throws IOException
     {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
         
         URL url = RawReadsWebinCliTest.class.getClassLoader().getResource( "uk/ac/ebi/ena/webin/cli/rawreads/ZeroCycle_ES0_TTCCTT20NGA_0.txt.gz" );
         Path file = Paths.get( new File( url.getFile() ).getCanonicalPath() );
@@ -482,7 +472,6 @@ RawReadsWebinCliTest
                                                  + "FASTQ " + file ).getBytes( StandardCharsets.UTF_8 ),
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive( false );
         rr.readManifest( parameters );
         rr.validate();
     }
@@ -491,7 +480,7 @@ RawReadsWebinCliTest
     @Test( expected = WebinCliException.class ) public void
     samePairedFastq() throws IOException
     {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
         
         URL url = RawReadsWebinCliTest.class.getClassLoader().getResource( "uk/ac/ebi/ena/webin/cli/rawreads/EP0_GTTCCTT_0.txt.gz" );
         Path file = Paths.get( new File( url.getFile() ).getCanonicalPath() );
@@ -503,7 +492,6 @@ RawReadsWebinCliTest
                                                  + "FASTQ " + file ).getBytes( StandardCharsets.UTF_8 ),
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive( false );
         rr.readManifest( parameters );
         rr.validate();
     }
@@ -512,7 +500,8 @@ RawReadsWebinCliTest
     @Test public void
     pairedFastq() throws IOException
     {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
+        rr.setInitialisationTestMode( true );
         
         URL url = RawReadsWebinCliTest.class.getClassLoader().getResource( "uk/ac/ebi/ena/webin/cli/rawreads/EP0_GTTCCTT_0.txt.gz" );
         Path file = Paths.get( new File( url.getFile() ).getCanonicalPath() );
@@ -523,7 +512,6 @@ RawReadsWebinCliTest
                                                  + "FASTQ " + file ).getBytes( StandardCharsets.UTF_8 ),
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive( false );
         rr.readManifest( parameters );
         rr.validate();
         rr.prepareSubmissionBundle();
@@ -536,7 +524,8 @@ RawReadsWebinCliTest
     @Test public void
     fastqPair() throws IOException
     {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
+        rr.setInitialisationTestMode( true );
         
         URL  url1 = RawReadsWebinCliTest.class.getClassLoader().getResource( "uk/ac/ebi/ena/webin/cli/rawreads/EP0_GTTCCTT_S1.txt.gz" );
         Path file1 = Paths.get( new File( url1.getFile() ).getCanonicalPath() );
@@ -551,7 +540,6 @@ RawReadsWebinCliTest
                                                  + "FASTQ " + file2 ).getBytes( StandardCharsets.UTF_8 ),
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive( false );
         rr.readManifest( parameters );
         rr.validate();
         rr.prepareSubmissionBundle();
@@ -569,7 +557,7 @@ RawReadsWebinCliTest
     @Test( expected = WebinCliException.class ) public void
     fastqFalsePair() throws IOException
     {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
         
         URL  url1 = RawReadsWebinCliTest.class.getClassLoader().getResource( "uk/ac/ebi/ena/webin/cli/rawreads/EP0_GTTCCTT_P1.txt.gz" );
         Path file1 = Paths.get( new File( url1.getFile() ).getCanonicalPath() );
@@ -584,7 +572,6 @@ RawReadsWebinCliTest
                                                  + "FASTQ " + file2 ).getBytes( StandardCharsets.UTF_8 ),
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive( false );
         rr.readManifest( parameters );
         rr.validate();
     }
@@ -593,7 +580,9 @@ RawReadsWebinCliTest
     @Test public void
     testIncorrectFastq() throws IOException
     {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
+        rr.setInitialisationTestMode( true );
+        
         URL url = RawReadsWebinCliTest.class.getClassLoader().getResource( "uk/ac/ebi/ena/webin/cli/rawreads/MG23S_431.fastq.gz" );
         File file = new File( URLDecoder.decode( url.getFile(), "UTF-8" ) );
         
@@ -603,7 +592,6 @@ RawReadsWebinCliTest
                                                  ( getInfoPart() + "FASTQ " + file.getPath() ).getBytes( StandardCharsets.UTF_8 ),
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive( false );
         rr.readManifest( parameters );
         try
         {
@@ -621,7 +609,9 @@ RawReadsWebinCliTest
     @Test public void
     testIncorrectCram() throws IOException
     {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
+        rr.setInitialisationTestMode( true );
+        
         URL url = RawReadsWebinCliTest.class.getClassLoader().getResource( "uk/ac/ebi/ena/webin/cli/rawreads/15194_1#135.cram" );
         File file = new File( URLDecoder.decode( url.getFile(), "UTF-8" ) );
         WebinCliParameters parameters = new WebinCliParameters();
@@ -630,7 +620,6 @@ RawReadsWebinCliTest
                                                  ( getInfoPart() + "CRAM " + file.getPath() ).getBytes( StandardCharsets.UTF_8 ), 
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive( false );
         rr.readManifest( parameters );
         try
         {
@@ -648,7 +637,9 @@ RawReadsWebinCliTest
     @Test public void
     testCorrectCram() throws IOException
     {
-        RawReadsWebinCli rr = new RawReadsWebinCli();
+        RawReadsWebinCli rr = new RawReadsWebinCli( true );
+        rr.setInitialisationTestMode( true );
+        
         URL url = RawReadsWebinCliTest.class.getClassLoader().getResource( "uk/ac/ebi/ena/webin/cli/rawreads/18045_1#93.cram" );
         File file = new File( URLDecoder.decode( url.getFile(), "UTF-8" ) );
         WebinCliParameters parameters = new WebinCliParameters();
@@ -657,7 +648,6 @@ RawReadsWebinCliTest
                                                  ( getInfoPart() + "CRAM " + file.getPath() ).getBytes( StandardCharsets.UTF_8 ), 
                                                  StandardOpenOption.TRUNCATE_EXISTING ).toFile() );
         parameters.setOutputDir( createOutputFolder() );
-        rr.setMetadataServiceActive( false );
         rr.readManifest( parameters );
         rr.validate();
     }

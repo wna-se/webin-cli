@@ -40,7 +40,7 @@ SequenceAssemblyXmlTest
     }
 
     
-    @Test public void
+    @SuppressWarnings( "serial" ) @Test public void
     testAnalysisXML_AssemblyInfo_WithFlatFile()
     {
         Path flatFile = WebinCliTestUtils.createGzippedTempFile( "flatfile.dat.gz", "ID   ;" );
@@ -49,7 +49,7 @@ SequenceAssemblyXmlTest
        	SubmissionFile submissionFile = new SubmissionFile( FileType.FLATFILE,flatFile.toFile() );
        	submissionFiles.addFile( submissionFile );
        	submissionOptions.submissionFiles = Optional.of( submissionFiles );
-        SequenceAssemblyWebinCli cli = new SequenceAssemblyWebinCli();
+        SequenceAssemblyWebinCli cli = new SequenceAssemblyWebinCli( false );
         String name = "test_sequence";
         cli.setName( name );
         cli.setSubmissionOptions( submissionOptions );
@@ -102,18 +102,17 @@ SequenceAssemblyXmlTest
                         SequenceAssemblyManifest.Field.DESCRIPTION + " d e s c r i p t i o n"
         );
 
-        WebinCliParameters parameters = AssemblyTestUtils.createWebinCliParameters(manifestFile, inputDir);
+        WebinCliParameters parameters = AssemblyTestUtils.createWebinCliParameters( manifestFile, inputDir );
 
-        SequenceAssemblyWebinCli cli = new SequenceAssemblyWebinCli();
+        SequenceAssemblyWebinCli cli = new SequenceAssemblyWebinCli( true );
 
-        cli.setMetadataServiceActive(false);
         Study study = new Study();
-        study.setProjectId("test_study");
-        cli.setStudy(study);
-
+        study.setProjectId( "test_study" );
+        cli.setStudy( study );
+        cli.setInitialisationTestMode( true );
         try
         {
-            cli.readManifest(parameters);
+            cli.readManifest( parameters );
         }
         finally {
             SubmissionBundle sb = WebinCliTestUtils.prepareSubmissionBundle(cli);
@@ -130,7 +129,7 @@ SequenceAssemblyXmlTest
                             "<SEQUENCE_FLATFILE/>\n" +
                             "</ANALYSIS_TYPE>\n" +
                             "<FILES>\n" +
-                            "      <FILE filename=\"webin-cli/sequence/" + name + "/" + flatFile.getFileName() + "\" filetype=\"flatfile\" checksum_method=\"MD5\" checksum=\"e334ca8a758084ba2f9f5975e798039e\" />\n" +
+                            "      <FILE filename=\"webin-cli-test/sequence/" + name + "/" + flatFile.getFileName() + "\" filetype=\"flatfile\" checksum_method=\"MD5\" checksum=\"e334ca8a758084ba2f9f5975e798039e\" />\n" +
                             "</FILES>\n" +
                             "</ANALYSIS>\n" +
                             "</ANALYSIS_SET>");
