@@ -23,6 +23,7 @@ import uk.ac.ebi.ena.webin.cli.manifest.ManifestFieldProcessor;
 import uk.ac.ebi.ena.webin.cli.manifest.ManifestFileCount;
 import uk.ac.ebi.ena.webin.cli.manifest.ManifestFileSuffix;
 import uk.ac.ebi.ena.webin.cli.manifest.ManifestReader;
+import uk.ac.ebi.ena.webin.cli.manifest.ManifestReaderResult;
 import uk.ac.ebi.ena.webin.cli.manifest.processor.ASCIIFileNameProcessor;
 import uk.ac.ebi.ena.webin.cli.manifest.processor.AnalysisProcessor;
 import uk.ac.ebi.ena.webin.cli.manifest.processor.FileSuffixProcessor;
@@ -102,16 +103,16 @@ SequenceAssemblyManifest extends ManifestReader
 
 
     @Override public void
-    processManifest() 
+    processManifest( ManifestReaderResult manifest_result ) 
     {
     	submissionOptions = new SubmissionOptions();
 		SubmissionFiles submissionFiles = new SubmissionFiles();
 		AssemblyInfoEntry assemblyInfo = new AssemblyInfoEntry();
-		name = getResult().getValue( Field.NAME );
-		description = getResult().getValue( Field.DESCRIPTION );
+		name = manifest_result.getValue( Field.NAME );
+		description = manifest_result.getValue( Field.DESCRIPTION );
 		assemblyInfo.setName( name );
-		getFiles( getInputDir(), getResult(), Field.TAB ).forEach(fastaFile-> submissionFiles.addFile( new SubmissionFile( FileType.TSV,fastaFile ) ) );
-		getFiles( getInputDir(), getResult(), Field.FLATFILE ).forEach(flatFile->submissionFiles.addFile( new SubmissionFile( FileType.FLATFILE,flatFile ) ) );
+		getFiles( getInputDir(), manifest_result, Field.TAB ).forEach(fastaFile-> submissionFiles.addFile( new SubmissionFile( FileType.TSV,fastaFile ) ) );
+		getFiles( getInputDir(), manifest_result, Field.FLATFILE ).forEach(flatFile->submissionFiles.addFile( new SubmissionFile( FileType.FLATFILE,flatFile ) ) );
 		submissionOptions.assemblyInfoEntry = Optional.of( assemblyInfo );
 		submissionOptions.context = Optional.of( Context.sequence );
 		submissionOptions.submissionFiles = Optional.of( submissionFiles );

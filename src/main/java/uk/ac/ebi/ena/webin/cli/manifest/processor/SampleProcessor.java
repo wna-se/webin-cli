@@ -20,20 +20,21 @@ import uk.ac.ebi.ena.webin.cli.manifest.ManifestFieldValue;
 import uk.ac.ebi.ena.webin.cli.service.SampleService;
 
 public class
-SampleProcessor implements ManifestFieldProcessor
+SampleProcessor extends AbstractManifestFieldProcessor<Sample> implements ManifestFieldProcessor
 {
     private final WebinCliParameters parameters;
-    private final ManifestFieldProcessor.Callback<Sample> callback;
-
+    private Sample sample; 
+    
     public 
     SampleProcessor( WebinCliParameters parameters, ManifestFieldProcessor.Callback<Sample> callback )
     {
+        super( callback );
         this.parameters = parameters;
-        this.callback = callback;
     }
 
+    
     @Override public ValidationResult
-    process( ManifestFieldValue fieldValue )
+    validate( ManifestFieldValue fieldValue )
     {
         String value = fieldValue.getValue();
 
@@ -43,14 +44,20 @@ SampleProcessor implements ManifestFieldProcessor
                                                            .setCredentials( parameters.getUsername(), parameters.getPassword() )
                                                            .setTest( parameters.isTestMode() )
                                                            .build();
-            Sample sample = sampleService.getSample( value );
+            sample = sampleService.getSample( value );
             fieldValue.setValue( sample.getBiosampleId() );
-            callback.notify( sample );
             return new ValidationResult();
             
         } catch( WebinCliException e )
         {
             return new ValidationResult().append( WebinCliMessage.error( WebinCliMessage.Manifest.SAMPLE_LOOKUP_ERROR, value, e.getMessage() ) );
         }
+    }
+
+
+    @Override public Sample 
+    getCallbackPayload()
+    {
+        return sample;
     }
 }

@@ -43,6 +43,7 @@ import uk.ac.ebi.embl.api.validation.ValidationResult;
 import uk.ac.ebi.ena.webin.cli.WebinCliException;
 import uk.ac.ebi.ena.webin.cli.WebinCliParameters;
 import uk.ac.ebi.ena.webin.cli.WebinCliTestUtils;
+import uk.ac.ebi.ena.webin.cli.rawreads.RawReadsWebinCli;
 import uk.ac.ebi.ena.webin.cli.rawreads.RawReadsManifest.Field;
 import uk.ac.ebi.ena.webin.cli.submit.SubmissionBundle;
 import uk.ac.ebi.ena.webin.cli.submit.SubmissionBundle.SubmissionXMLFileType;

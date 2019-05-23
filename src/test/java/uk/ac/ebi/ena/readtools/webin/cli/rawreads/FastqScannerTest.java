@@ -8,7 +8,7 @@
  * CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package uk.ac.ebi.ena.webin.cli.rawreads;
+package uk.ac.ebi.ena.readtools.webin.cli.rawreads;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +33,8 @@ import uk.ac.ebi.embl.api.validation.Origin;
 import uk.ac.ebi.embl.api.validation.Severity;
 import uk.ac.ebi.embl.api.validation.ValidationMessage;
 import uk.ac.ebi.embl.api.validation.ValidationResult;
+import uk.ac.ebi.ena.readtools.webin.cli.rawreads.FastqScanner;
+import uk.ac.ebi.ena.readtools.webin.cli.rawreads.RawReadsFile;
 import uk.ac.ebi.ena.webin.cli.WebinCliTest;
 
 

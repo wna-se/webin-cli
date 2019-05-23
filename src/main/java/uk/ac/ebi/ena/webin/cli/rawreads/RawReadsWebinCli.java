@@ -20,6 +20,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -45,20 +46,23 @@ import htsjdk.samtools.cram.CRAMException;
 import htsjdk.samtools.util.Log;
 import htsjdk.samtools.util.Log.LogLevel;
 import net.sf.cram.ref.ENAReferenceSource;
-
 import uk.ac.ebi.embl.api.validation.DefaultOrigin;
 import uk.ac.ebi.embl.api.validation.Origin;
 import uk.ac.ebi.embl.api.validation.Severity;
 import uk.ac.ebi.embl.api.validation.ValidationMessage;
 import uk.ac.ebi.embl.api.validation.ValidationResult;
-import uk.ac.ebi.ena.webin.cli.*;
-import uk.ac.ebi.ena.webin.cli.entity.Sample;
-import uk.ac.ebi.ena.webin.cli.entity.Study;
+import uk.ac.ebi.ena.readtools.webin.cli.rawreads.FastqScanner;
+import uk.ac.ebi.ena.readtools.webin.cli.rawreads.RawReadsFile;
+import uk.ac.ebi.ena.readtools.webin.cli.rawreads.RawReadsFile.ChecksumMethod;
+import uk.ac.ebi.ena.readtools.webin.cli.rawreads.RawReadsFile.Filetype;
+import uk.ac.ebi.ena.readtools.webin.cli.rawreads.refs.CramReferenceInfo;
+import uk.ac.ebi.ena.webin.cli.AbstractWebinCli;
+import uk.ac.ebi.ena.webin.cli.WebinCli;
+import uk.ac.ebi.ena.webin.cli.WebinCliContext;
+import uk.ac.ebi.ena.webin.cli.WebinCliException;
+import uk.ac.ebi.ena.webin.cli.WebinCliMessage;
 import uk.ac.ebi.ena.webin.cli.manifest.processor.SampleProcessor;
 import uk.ac.ebi.ena.webin.cli.manifest.processor.StudyProcessor;
-import uk.ac.ebi.ena.webin.cli.rawreads.RawReadsFile.ChecksumMethod;
-import uk.ac.ebi.ena.webin.cli.rawreads.RawReadsFile.Filetype;
-import uk.ac.ebi.ena.webin.cli.rawreads.refs.CramReferenceInfo;
 import uk.ac.ebi.ena.webin.cli.reporter.ValidationMessageReporter;
 import uk.ac.ebi.ena.webin.cli.submit.SubmissionBundle;
 import uk.ac.ebi.ena.webin.cli.submit.SubmissionBundle.SubmissionXMLFile;
@@ -68,6 +72,26 @@ import uk.ac.ebi.ena.webin.cli.utils.FileUtils;
 public class 
 RawReadsWebinCli extends AbstractWebinCli<RawReadsManifest>
 {   
+    public static class 
+    ManifestData
+    {
+        String  study_id;
+        String  sample_id;
+        String  name;
+        String  description;
+        String  instrument_model;
+        String  library_strategy;
+        String  library_source;
+        String  library_selection;
+        String  library_name;
+        String  platform;
+        Integer insert_size;
+        Integer pairing_horizon;
+        
+        List<RawReadsFile> files = Collections.emptyList();
+    }
+    
+    
     static 
     {
         System.setProperty( "samjdk.use_cram_ref_download", Boolean.TRUE.toString() );
@@ -79,43 +103,59 @@ RawReadsWebinCli extends AbstractWebinCli<RawReadsManifest>
 
     private String studyId;
     private String sampleId;
-
+    
+    
     //TODO value should be estimated via validation
     private boolean is_paired;
 
     private static final Logger log = LoggerFactory.getLogger(RawReadsWebinCli.class);
+    ManifestData mdata;
+    
 
     @Override
     public WebinCliContext getContext() {
         return WebinCliContext.reads;
     }
 
-    @Override
-    protected RawReadsManifest createManifestReader() {
+    
+    @Override protected RawReadsManifest 
+    createManifestReader() 
+    {
 
         // Create manifest parser which will also set the sample and study fields.
 
-        return new RawReadsManifest(
-                isMetadataServiceActive(MetadataService.SAMPLE) ? new SampleProcessor(getParameters(), (Sample sample) -> this.sampleId = sample.getBiosampleId()) : null,
-                isMetadataServiceActive(MetadataService.STUDY) ? new StudyProcessor(getParameters(), (Study study) -> this.studyId = study.getProjectId()) : null);
+        return new RawReadsManifest( isMetadataServiceActive( MetadataService.SAMPLE ) ? new SampleProcessor( getParameters(), sample -> this.sampleId = sample.getBiosampleId() ) : null,
+                                     isMetadataServiceActive( MetadataService.STUDY  ) ? new StudyProcessor(  getParameters(),  study -> this.studyId  = study.getProjectId() ) : null );
     }
 
-    @Override
-    protected void readManifest(Path inputDir, File manifestFile) {
+    
+    @Override protected void 
+    readManifest( Path inputDir, File manifestFile )
+    {
         getManifestReader().readManifest( inputDir, manifestFile );
-
-        if (StringUtils.isBlank(studyId)) {
-            studyId = getManifestReader().getStudyId();
-        }
-
-        if (StringUtils.isBlank(sampleId)) {
-            sampleId = getManifestReader().getSampleId();
-        }
+        mdata = new ManifestData();
         
-        setDescription( getManifestReader().getDescription() );
+        mdata.instrument_model  = getManifestReader().getInstrument();
+        mdata.library_strategy  = getManifestReader().getLibraryStrategy();
+        mdata.library_source    = getManifestReader().getLibrarySource();
+        mdata.library_selection = getManifestReader().getLibrarySelection();
+        mdata.library_name      = getManifestReader().getLibraryName();
+
+        mdata.platform          = getManifestReader().getPlatform();
+        mdata.insert_size       = getManifestReader().getInsertSize();
+        mdata.sample_id         = getManifestReader().getSampleId();
+        mdata.study_id          = getManifestReader().getStudyId();
+        mdata.description       = getManifestReader().getDescription();
+        mdata.name              = getManifestReader().getName();
+        mdata.files             = getManifestReader().getRawReadFiles();
+        mdata.pairing_horizon   = getManifestReader().getPairingHorizon();
+        
+        setDescription( mdata.description );
+        setSampleId( mdata.sample_id );
+        setStudyId( mdata.study_id );
     }
 
-
+    
     @Override public void
     validate() throws WebinCliException
     {
@@ -131,7 +171,7 @@ RawReadsWebinCli extends AbstractWebinCli<RawReadsManifest>
         boolean valid = true;
         AtomicBoolean paired = new AtomicBoolean();
         
-        List<RawReadsFile> files = getManifestReader().getRawReadFiles();
+        List<RawReadsFile> files = mdata.files;
 
         for (RawReadsFile rf : files) {
             if (Filetype.fastq.equals(rf.getFiletype())) {
@@ -200,7 +240,7 @@ RawReadsWebinCli extends AbstractWebinCli<RawReadsManifest>
             }
             
             
-            FastqScanner fs = new FastqScanner( getManifestReader().getPairingHorizon() );            
+            FastqScanner fs = new FastqScanner( mdata.pairing_horizon );            
             ValidationResult vr = fs.checkFiles( files.toArray( new RawReadsFile[ files.size() ] ) );
             paired.set( fs.getPaired() );
             files.forEach(rf -> {
@@ -340,7 +380,7 @@ RawReadsWebinCli extends AbstractWebinCli<RawReadsManifest>
     {
         try
         {
-            List<RawReadsFile> files = getManifestReader().getRawReadFiles();
+            List<RawReadsFile> files = mdata.files;
             
             List<File> uploadFileList = files.stream().map( e -> new File( e.getFilename() ) ).collect( Collectors.toList() );
             Path uploadDir = getUploadRoot().resolve( Paths.get( String.valueOf( getContext() ), WebinCli.getSafeOutputDir( getName() ) ) );
@@ -362,7 +402,7 @@ RawReadsWebinCli extends AbstractWebinCli<RawReadsManifest>
             //do something
             String experiment_ref = getAlias();
             
-            String e_xml = createExperimentXml( experiment_ref, getParameters().getCenterName(), is_paired, getManifestReader().getDescription() );
+            String e_xml = createExperimentXml( experiment_ref, getParameters().getCenterName(), is_paired, mdata.description );
             String r_xml = createRunXml( eList, experiment_ref, getParameters().getCenterName() );
             
             Path runXmlFile = getSubmitDir().toPath().resolve( RUN_XML );
@@ -405,15 +445,17 @@ RawReadsWebinCli extends AbstractWebinCli<RawReadsManifest>
     private String
     createExperimentXml(String experiment_ref, String centerName, boolean is_paired, String design_description)
     {
-        String instrument_model = getManifestReader().getInstrument();
+        String instrument_model = mdata.instrument_model;
+        
         design_description = StringUtils.isBlank( design_description ) ? "unspecified" : design_description;
-        String library_strategy  = getManifestReader().getLibraryStrategy();
-        String library_source    = getManifestReader().getLibrarySource();
-        String library_selection = getManifestReader().getLibrarySelection();
-        String library_name      = getManifestReader().getLibraryName();
+        
+        String library_strategy  = mdata.library_strategy;
+        String library_source    = mdata.library_source;
+        String library_selection = mdata.library_selection;
+        String library_name      = mdata.library_name;
 
-        String platform  = getManifestReader().getPlatform();
-        Integer insert_size = getManifestReader().getInsertSize();
+        String platform  = mdata.platform;
+        Integer insert_size = mdata.insert_size;
                 
         try 
         {
@@ -554,4 +596,20 @@ RawReadsWebinCli extends AbstractWebinCli<RawReadsManifest>
         System.out.print( msg );
         System.out.flush();
     }
+    
+    
+    public void
+    setStudyId( String studyId )
+    {
+        this.studyId = studyId;
+    }
+    
+
+    public void
+    setSampleId( String sampleId )
+    {
+        this.sampleId = sampleId;
+    }
+
+
 }

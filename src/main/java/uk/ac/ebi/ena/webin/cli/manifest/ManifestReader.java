@@ -106,7 +106,7 @@ ManifestReader
         return fileGroups;
     }
 
-    public final ManifestReaderResult
+    private final ManifestReaderResult
     getResult()
     {
         return result;
@@ -188,7 +188,7 @@ ManifestReader
         validateManifest();
 
         // Process
-        processManifest();
+        processManifest( getResult() );
     }
 
 
@@ -321,8 +321,7 @@ ManifestReader
     }
 
 
-    protected abstract void
-    processManifest();
+    protected abstract void processManifest( ManifestReaderResult result );
 
 
     private void

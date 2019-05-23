@@ -8,7 +8,7 @@
  * CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package uk.ac.ebi.ena.webin.cli.rawreads;
+package uk.ac.ebi.ena.readtools.webin.cli.rawreads;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -26,6 +26,8 @@ import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import uk.ac.ebi.ena.readtools.webin.cli.rawreads.BloomWrapper;
 
 
 

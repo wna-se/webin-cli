@@ -27,13 +27,18 @@ public class TestManifestReader extends ManifestReader {
         return "Test";
     }
 
-    @Override
-    protected void processManifest() {
-    }
 
     @Override
     public String getDescription()
     {
         return "Description";
+    }
+
+
+    @Override
+    protected void 
+    processManifest( ManifestReaderResult result )
+    {
+            
     }
 }

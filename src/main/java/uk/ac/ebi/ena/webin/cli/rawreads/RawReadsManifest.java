@@ -13,12 +13,17 @@ package uk.ac.ebi.ena.webin.cli.rawreads;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 
+import uk.ac.ebi.ena.readtools.webin.cli.rawreads.RawReadsFile;
+import uk.ac.ebi.ena.readtools.webin.cli.rawreads.RawReadsFile.AsciiOffset;
+import uk.ac.ebi.ena.readtools.webin.cli.rawreads.RawReadsFile.Filetype;
+import uk.ac.ebi.ena.readtools.webin.cli.rawreads.RawReadsFile.QualityScoringSystem;
 import uk.ac.ebi.ena.webin.cli.WebinCliMessage;
 import uk.ac.ebi.ena.webin.cli.manifest.*;
 import uk.ac.ebi.ena.webin.cli.manifest.processor.ASCIIFileNameProcessor;
@@ -26,12 +31,10 @@ import uk.ac.ebi.ena.webin.cli.manifest.processor.CVFieldProcessor;
 import uk.ac.ebi.ena.webin.cli.manifest.processor.FileSuffixProcessor;
 import uk.ac.ebi.ena.webin.cli.manifest.processor.SampleProcessor;
 import uk.ac.ebi.ena.webin.cli.manifest.processor.StudyProcessor;
-import uk.ac.ebi.ena.webin.cli.rawreads.RawReadsFile.AsciiOffset;
-import uk.ac.ebi.ena.webin.cli.rawreads.RawReadsFile.Filetype;
-import uk.ac.ebi.ena.webin.cli.rawreads.RawReadsFile.QualityScoringSystem;
 
 public class
-RawReadsManifest extends ManifestReader {
+RawReadsManifest extends ManifestReader
+{
 
     public interface Field {
         String NAME = "NAME";
@@ -108,44 +111,57 @@ RawReadsManifest extends ManifestReader {
     private List<RawReadsFile> files;
 
 
-    public RawReadsManifest() {
-        this(null, null);
+    public 
+    RawReadsManifest() 
+    {
+        this( null, null );
     }
 
 
-    @SuppressWarnings("serial")
-    public RawReadsManifest(SampleProcessor sampleProcessor, StudyProcessor studyProcessor) {
-        super(
-                // Fields.
-                new ManifestFieldDefinition.Builder()
-                       .meta().required().name(Field.NAME).desc(Description.NAME).and()
-                       .meta().required().name(Field.STUDY).desc(Description.STUDY).processor(studyProcessor).and()
-                       .meta().required().name(Field.SAMPLE).desc(Description.SAMPLE).processor(sampleProcessor).and()
-                       .meta().optional().name(Field.DESCRIPTION).desc(Description.DESCRIPTION).and()
-                       .meta().optional().requiredInSpreadsheet().name(Field.INSTRUMENT).desc(Description.INSTRUMENT).processor(new CVFieldProcessor(CV_INSTRUMENT)).and()
-                       .meta().optional().notInSpreadsheet().name(Field.PLATFORM).desc(Description.PLATFORM).processor(new CVFieldProcessor(CV_PLATFORM)).and()
-                       .meta().required().name(Field.LIBRARY_SOURCE).desc(Description.LIBRARY_SOURCE).processor(new CVFieldProcessor(CV_SOURCE)).and()
-                       .meta().required().name(Field.LIBRARY_SELECTION).desc(Description.LIBRARY_SELECTION).processor(new CVFieldProcessor(CV_SELECTION)).and()
-                       .meta().required().name(Field.LIBRARY_STRATEGY).desc(Description.LIBRARY_STRATEGY).processor(new CVFieldProcessor(CV_STRATEGY)).and()
-                       .meta().optional().name(Field.LIBRARY_CONSTRUCTION_PROTOCOL).desc(Description.LIBRARY_CONSTRUCTION_PROTOCOL).and()
-                       .meta().optional().name(Field.LIBRARY_NAME).desc(Description.LIBRARY_NAME).and()
-                       .meta().optional().name(Field.INSERT_SIZE).desc(Description.INSERT_SIZE).and()
-                       .file().optional(2).name(Field.FASTQ).desc(Description.FASTQ).processor(getFastqProcessors()).and()
-                       .file().optional().name(Field.BAM).desc(Description.BAM).processor(getBamProcessors()).and()
-                       .file().optional().name(Field.CRAM).desc(Description.CRAM).processor(getCramProcessors()).and()
-                       .meta().optional().notInSpreadsheet().name(Field.QUALITY_SCORE).desc(Description.QUALITY_SCORE).processor(new CVFieldProcessor(CV_QUALITY_SCORE)).and()
-                       .meta().optional().notInSpreadsheet().name(Field.__HORIZON).desc(Description.__HORIZON).build()
-                ,
-                // File groups.
-                new ManifestFileCount.Builder()
-                        .group()
-                        .required(Field.FASTQ, 2)
-                        .and().group()
-                        .required(Field.CRAM)
-                        .and().group()
-                        .required(Field.BAM)
-                        .build()
-        );
+    public 
+    RawReadsManifest( SampleProcessor sampleProcessor, StudyProcessor studyProcessor ) 
+    {
+        super( getManifestFieldDefinition( sampleProcessor, studyProcessor ), getManifestFileCount() );
+    }
+
+
+    public static ArrayList<ManifestFileGroup> 
+    getManifestFileCount()
+    {
+        return // File groups.
+        new ManifestFileCount.Builder()
+                .group()
+                .required(Field.FASTQ, 2)
+                .and().group()
+                .required(Field.CRAM)
+                .and().group()
+                .required(Field.BAM)
+                .build();
+    }
+
+
+    public static List<ManifestFieldDefinition> 
+    getManifestFieldDefinition( SampleProcessor sampleProcessor, StudyProcessor studyProcessor )
+    {
+        return // Fields.
+        new ManifestFieldDefinition.Builder()
+               .meta().required().name( Field.NAME        ).desc( Description.NAME ).and()
+               .meta().required().name( Field.STUDY       ).desc( Description.STUDY ).processor( studyProcessor ).and()
+               .meta().required().name( Field.SAMPLE      ).desc( Description.SAMPLE ).processor( sampleProcessor ).and()
+               .meta().optional().name( Field.DESCRIPTION ).desc( Description.DESCRIPTION ).and()
+               .meta().optional().requiredInSpreadsheet().name( Field.INSTRUMENT ).desc( Description.INSTRUMENT ).processor( new CVFieldProcessor( CV_INSTRUMENT ) ).and()
+               .meta().optional().notInSpreadsheet().name( Field.PLATFORM ).desc( Description.PLATFORM ).processor( new CVFieldProcessor( CV_PLATFORM ) ).and()
+               .meta().required().name( Field.LIBRARY_SOURCE                ).desc( Description.LIBRARY_SOURCE ).processor( new CVFieldProcessor( CV_SOURCE ) ).and()
+               .meta().required().name( Field.LIBRARY_SELECTION             ).desc( Description.LIBRARY_SELECTION ).processor( new CVFieldProcessor( CV_SELECTION ) ).and()
+               .meta().required().name( Field.LIBRARY_STRATEGY              ).desc( Description.LIBRARY_STRATEGY ).processor( new CVFieldProcessor( CV_STRATEGY ) ).and()
+               .meta().optional().name( Field.LIBRARY_CONSTRUCTION_PROTOCOL ).desc( Description.LIBRARY_CONSTRUCTION_PROTOCOL ).and()
+               .meta().optional().name( Field.LIBRARY_NAME                  ).desc( Description.LIBRARY_NAME ).and()
+               .meta().optional().name( Field.INSERT_SIZE ).desc( Description.INSERT_SIZE ).and()
+               .file().optional( 2 ).name( Field.FASTQ    ).desc( Description.FASTQ ).processor( getFastqProcessors() ).and()
+               .file().optional().name( Field.BAM  ).desc( Description.BAM  ).processor( getBamProcessors() ).and()
+               .file().optional().name( Field.CRAM ).desc( Description.CRAM ).processor( getCramProcessors() ).and()
+               .meta().optional().notInSpreadsheet().name( Field.QUALITY_SCORE ).desc( Description.QUALITY_SCORE ).processor( new CVFieldProcessor( CV_QUALITY_SCORE ) ).and()
+               .meta().optional().notInSpreadsheet().name( Field.__HORIZON     ).desc( Description.__HORIZON ).build();
     }
 
 
@@ -259,41 +275,41 @@ RawReadsManifest extends ManifestReader {
 
 
     @Override public void
-    processManifest()
+    processManifest( ManifestReaderResult result )
     {
-        name = getResult().getValue( Field.NAME );
-        study_id = getResult().getValue( Field.STUDY );
-        sample_id = getResult().getValue( Field.SAMPLE );
-        description = getResult().getValue( Field.DESCRIPTION );
+        name = result.getValue( Field.NAME );
+        study_id = result.getValue( Field.STUDY );
+        sample_id = result.getValue( Field.SAMPLE );
+        description = result.getValue( Field.DESCRIPTION );
         
-        if (getResult().getCount(Field.INSTRUMENT) > 0 &&
-            getResult().getField(Field.INSTRUMENT).isValidFieldValueOrFileSuffix())
-            instrument = getResult().getValue(Field.INSTRUMENT);
+        if (result.getCount(Field.INSTRUMENT) > 0 &&
+            result.getField(Field.INSTRUMENT).isValidFieldValueOrFileSuffix())
+            instrument = result.getValue(Field.INSTRUMENT);
 
-        if (getResult().getCount(Field.PLATFORM) > 0 &&
-            getResult().getField(Field.PLATFORM).isValidFieldValueOrFileSuffix())
-            platform = getResult().getValue(Field.PLATFORM);
+        if (result.getCount(Field.PLATFORM) > 0 &&
+            result.getField(Field.PLATFORM).isValidFieldValueOrFileSuffix())
+            platform = result.getValue(Field.PLATFORM);
 
-        insert_size = getAndValidatePositiveInteger(getResult().getField(Field.INSERT_SIZE));
+        insert_size = getAndValidatePositiveInteger( result.getField(Field.INSERT_SIZE ) );
 
-        if (getResult().getCount(Field.LIBRARY_SOURCE) > 0 &&
-            getResult().getField(Field.LIBRARY_SOURCE).isValidFieldValueOrFileSuffix())
-            library_source = getResult().getValue(Field.LIBRARY_SOURCE);
+        if (result.getCount(Field.LIBRARY_SOURCE) > 0 &&
+            result.getField(Field.LIBRARY_SOURCE).isValidFieldValueOrFileSuffix())
+            library_source = result.getValue(Field.LIBRARY_SOURCE);
 
-        if (getResult().getCount(Field.LIBRARY_SELECTION) > 0 &&
-            getResult().getField(Field.LIBRARY_SELECTION).isValidFieldValueOrFileSuffix())
-            library_selection = getResult().getValue(Field.LIBRARY_SELECTION);
+        if (result.getCount(Field.LIBRARY_SELECTION) > 0 &&
+            result.getField(Field.LIBRARY_SELECTION).isValidFieldValueOrFileSuffix())
+            library_selection = result.getValue(Field.LIBRARY_SELECTION);
 
-        if (getResult().getCount(Field.LIBRARY_STRATEGY) > 0 &&
-            getResult().getField(Field.LIBRARY_STRATEGY).isValidFieldValueOrFileSuffix())
-            library_strategy = getResult().getValue(Field.LIBRARY_STRATEGY);
+        if (result.getCount(Field.LIBRARY_STRATEGY) > 0 &&
+            result.getField(Field.LIBRARY_STRATEGY).isValidFieldValueOrFileSuffix())
+            library_strategy = result.getValue(Field.LIBRARY_STRATEGY);
 
-        library_construction_protocol = getResult().getValue(Field.LIBRARY_CONSTRUCTION_PROTOCOL);
-        library_name = getResult().getValue(Field.LIBRARY_NAME);
+        library_construction_protocol = result.getValue(Field.LIBRARY_CONSTRUCTION_PROTOCOL);
+        library_name = result.getValue(Field.LIBRARY_NAME);
 
-        if( getResult().getValue( Field.QUALITY_SCORE ) != null )
+        if( result.getValue( Field.QUALITY_SCORE ) != null )
         {
-            switch( getResult().getValue( Field.QUALITY_SCORE ) )
+            switch( result.getValue( Field.QUALITY_SCORE ) )
             {
             case QUALITY_SCORE_PHRED_33:
                 asciiOffset = AsciiOffset.FROM33;
@@ -310,11 +326,11 @@ RawReadsManifest extends ManifestReader {
             }
         }
 
-        if (getResult().getCount(Field.__HORIZON) > 0)
-            pairing_horizon = getAndValidatePositiveInteger(getResult().getField(Field.__HORIZON));
+        if (result.getCount(Field.__HORIZON) > 0)
+            pairing_horizon = getAndValidatePositiveInteger( result.getField( Field.__HORIZON ) );
 
         processInstrumentAndPlatform();
-        processFiles();
+        processFiles( result );
     }
 
 
@@ -359,9 +375,9 @@ RawReadsManifest extends ManifestReader {
 
 
     private void
-    processFiles()
+    processFiles( ManifestReaderResult manifest_result )
     {
-        files = getResult().getFields().stream()
+        files = manifest_result.getFields().stream()
                 .filter( field -> field.getDefinition().getType() == ManifestFieldType.FILE )
                 .map( field -> createReadFile( getInputDir(), field ) )
                 .collect( Collectors.toList() );

@@ -20,21 +20,21 @@ import uk.ac.ebi.ena.webin.cli.manifest.ManifestFieldValue;
 import uk.ac.ebi.ena.webin.cli.service.StudyService;
 
 public class
-StudyProcessor implements ManifestFieldProcessor
+StudyProcessor extends AbstractManifestFieldProcessor<Study> implements ManifestFieldProcessor
 {
     private final WebinCliParameters parameters;
-    private final ManifestFieldProcessor.Callback<Study> callback;
-
+    private Study study;
+    
     public 
     StudyProcessor( WebinCliParameters parameters, ManifestFieldProcessor.Callback<Study> callback )
     {
+        super( callback );
         this.parameters = parameters;
-        this.callback = callback;
     }
 
     
     @Override public ValidationResult
-    process( ManifestFieldValue fieldValue )
+    validate( ManifestFieldValue fieldValue )
     {
         String value = fieldValue.getValue();
 
@@ -44,14 +44,20 @@ StudyProcessor implements ManifestFieldProcessor
                                                         .setCredentials( parameters.getUsername(), parameters.getPassword() )
                                                         .setTest( parameters.isTestMode() )
                                                         .build();
-            Study study = studyService.getStudy( value );
+            study = studyService.getStudy( value );
             fieldValue.setValue( study.getProjectId() );
-            callback.notify( study );
             return new ValidationResult();
             
         } catch( WebinCliException e )
         {
             return new ValidationResult().append( WebinCliMessage.error( WebinCliMessage.Manifest.STUDY_LOOKUP_ERROR, value, e.getMessage() ) );
         }
+    }
+
+
+    @Override public Study 
+    getCallbackPayload()
+    {
+        return study;
     }
 }

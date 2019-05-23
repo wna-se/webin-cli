@@ -26,6 +26,7 @@ import uk.ac.ebi.ena.webin.cli.manifest.ManifestFieldProcessor;
 import uk.ac.ebi.ena.webin.cli.manifest.ManifestFileCount;
 import uk.ac.ebi.ena.webin.cli.manifest.ManifestFileSuffix;
 import uk.ac.ebi.ena.webin.cli.manifest.ManifestReader;
+import uk.ac.ebi.ena.webin.cli.manifest.ManifestReaderResult;
 import uk.ac.ebi.ena.webin.cli.manifest.processor.ASCIIFileNameProcessor;
 import uk.ac.ebi.ena.webin.cli.manifest.processor.AnalysisProcessor;
 import uk.ac.ebi.ena.webin.cli.manifest.processor.CVFieldProcessor;
@@ -138,14 +139,14 @@ TranscriptomeAssemblyManifest extends ManifestReader
 	
 	
 	@Override public void
-	processManifest() 
+	processManifest( ManifestReaderResult manifest_result ) 
 	{
 
-		name = getResult().getValue( Field.NAME );
+		name = manifest_result.getValue( Field.NAME );
 		
 		if( StringUtils.isBlank( name ) )
 		{
-			name = getResult().getValue( Field.ASSEMBLYNAME );
+			name = manifest_result.getValue( Field.ASSEMBLYNAME );
 		}
 		
 		if( StringUtils.isBlank( name ) ) 
@@ -153,22 +154,22 @@ TranscriptomeAssemblyManifest extends ManifestReader
 			error( WebinCliMessage.Manifest.MISSING_MANDATORY_FIELD_ERROR, Field.NAME + " or " + Field.ASSEMBLYNAME );
 		}
 
-		description = getResult().getValue( Field.DESCRIPTION );
+		description = manifest_result.getValue( Field.DESCRIPTION );
 		
 		submissionOptions = new SubmissionOptions();
 		SubmissionFiles submissionFiles = new SubmissionFiles();
 		AssemblyInfoEntry assemblyInfo = new AssemblyInfoEntry();
         assemblyInfo.setName( name );
-		assemblyInfo.setProgram( getResult().getValue( Field.PROGRAM ) );
-		assemblyInfo.setPlatform( getResult().getValue( Field.PLATFORM ) );
+		assemblyInfo.setProgram( manifest_result.getValue( Field.PROGRAM ) );
+		assemblyInfo.setPlatform( manifest_result.getValue( Field.PLATFORM ) );
 
-		if( getResult().getCount(Field.TPA) > 0 )
+		if( manifest_result.getCount(Field.TPA) > 0 )
 		{
-			assemblyInfo.setTpa( getAndValidateBoolean( getResult().getField(Field.TPA ) ) );
+			assemblyInfo.setTpa( getAndValidateBoolean( manifest_result.getField(Field.TPA ) ) );
 		}
 
-		getFiles( getInputDir(), getResult(), Field.FASTA ).forEach(fastaFile-> submissionFiles.addFile( new SubmissionFile( FileType.FASTA, fastaFile ) ) );
-		getFiles( getInputDir(), getResult(), Field.FLATFILE ).forEach(fastaFile-> submissionFiles.addFile( new SubmissionFile( FileType.FLATFILE, fastaFile ) ) );
+		getFiles( getInputDir(), manifest_result, Field.FASTA ).forEach(fastaFile-> submissionFiles.addFile( new SubmissionFile( FileType.FASTA, fastaFile ) ) );
+		getFiles( getInputDir(), manifest_result, Field.FLATFILE ).forEach(fastaFile-> submissionFiles.addFile( new SubmissionFile( FileType.FLATFILE, fastaFile ) ) );
 		submissionOptions.assemblyInfoEntry = Optional.of( assemblyInfo );
 		submissionOptions.context = Optional.of( Context.transcriptome );
 		submissionOptions.submissionFiles = Optional.of( submissionFiles );

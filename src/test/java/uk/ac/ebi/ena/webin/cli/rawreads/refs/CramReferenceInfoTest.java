@@ -13,7 +13,8 @@ package uk.ac.ebi.ena.webin.cli.rawreads.refs;
 import org.junit.Assert;
 import org.junit.Test;
 
-import uk.ac.ebi.ena.webin.cli.rawreads.refs.CramReferenceInfo.ReferenceInfo;
+import uk.ac.ebi.ena.readtools.webin.cli.rawreads.refs.CramReferenceInfo;
+import uk.ac.ebi.ena.readtools.webin.cli.rawreads.refs.CramReferenceInfo.ReferenceInfo;
 
 public class 
 CramReferenceInfoTest 

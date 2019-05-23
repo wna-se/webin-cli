@@ -29,6 +29,7 @@ import uk.ac.ebi.ena.webin.cli.manifest.ManifestFileCount;
 import uk.ac.ebi.ena.webin.cli.manifest.ManifestFileGroup;
 import uk.ac.ebi.ena.webin.cli.manifest.ManifestFileSuffix;
 import uk.ac.ebi.ena.webin.cli.manifest.ManifestReader;
+import uk.ac.ebi.ena.webin.cli.manifest.ManifestReaderResult;
 import uk.ac.ebi.ena.webin.cli.manifest.processor.ASCIIFileNameProcessor;
 import uk.ac.ebi.ena.webin.cli.manifest.processor.AnalysisProcessor;
 import uk.ac.ebi.ena.webin.cli.manifest.processor.CVFieldProcessor;
@@ -205,12 +206,12 @@ GenomeAssemblyManifest extends ManifestReader {
 
 
     @Override public void
-	processManifest() 
+	processManifest( ManifestReaderResult manifest_result ) 
 	{
 		submissionOptions = new SubmissionOptions();
 		SubmissionFiles submissionFiles = new SubmissionFiles();
 		AssemblyInfoEntry assemblyInfo = new AssemblyInfoEntry();
-		name = StringUtils.isBlank( getResult().getValue( Field.NAME ) ) ? getResult().getValue(Field.ASSEMBLYNAME ) : getResult().getValue( Field.NAME );
+		name = StringUtils.isBlank( manifest_result.getValue( Field.NAME ) ) ? manifest_result.getValue(Field.ASSEMBLYNAME ) : manifest_result.getValue( Field.NAME );
 		if( StringUtils.isBlank( name ) ) 
 		{
 			error( WebinCliMessage.Manifest.MISSING_MANDATORY_FIELD_ERROR, Field.NAME + " or " + Field.ASSEMBLYNAME );
@@ -219,34 +220,34 @@ GenomeAssemblyManifest extends ManifestReader {
 		if( name != null )
 			assemblyInfo.setName( name );
 
-		description = getResult().getValue( Field.DESCRIPTION );
-		assemblyInfo.setPlatform( getResult().getValue( Field.PLATFORM ) );
-		assemblyInfo.setProgram( getResult().getValue( Field.PROGRAM ) );
-		assemblyInfo.setMoleculeType( getResult().getValue( Field.MOLECULETYPE ) == null ? MOLECULE_TYPE_DEFAULT :  getResult().getValue( Field.MOLECULETYPE ) );
-		getAndValidatePositiveFloat( getResult().getField( Field.COVERAGE ) );
-		assemblyInfo.setCoverage(getResult().getValue( Field.COVERAGE ) );
+		description = manifest_result.getValue( Field.DESCRIPTION );
+		assemblyInfo.setPlatform( manifest_result.getValue( Field.PLATFORM ) );
+		assemblyInfo.setProgram( manifest_result.getValue( Field.PROGRAM ) );
+		assemblyInfo.setMoleculeType( manifest_result.getValue( Field.MOLECULETYPE ) == null ? MOLECULE_TYPE_DEFAULT :  manifest_result.getValue( Field.MOLECULETYPE ) );
+		getAndValidatePositiveFloat( manifest_result.getField( Field.COVERAGE ) );
+		assemblyInfo.setCoverage( manifest_result.getValue( Field.COVERAGE ) );
 		
-		if( getResult().getCount( Field.MINGAPLENGTH ) > 0 )
+		if( manifest_result.getCount( Field.MINGAPLENGTH ) > 0 )
 		{
-			assemblyInfo.setMinGapLength( getAndValidatePositiveInteger( getResult().getField( Field.MINGAPLENGTH ) ) );
+			assemblyInfo.setMinGapLength( getAndValidatePositiveInteger( manifest_result.getField( Field.MINGAPLENGTH ) ) );
 		}
 		
-		assemblyInfo.setAssemblyType( getResult().getValue( Field.ASSEMBLY_TYPE ) );
+		assemblyInfo.setAssemblyType( manifest_result.getValue( Field.ASSEMBLY_TYPE ) );
 		
-		if( getResult().getCount( Field.TPA ) > 0 )
+		if( manifest_result.getCount( Field.TPA ) > 0 )
 		{
-			assemblyInfo.setTpa( getAndValidateBoolean( getResult().getField( Field.TPA ) ) );
+			assemblyInfo.setTpa( getAndValidateBoolean( manifest_result.getField( Field.TPA ) ) );
 		}
 		
-		getFiles( getInputDir(), getResult(), Field.FASTA ).forEach(fastaFile -> submissionFiles.addFile( new SubmissionFile( FileType.FASTA,fastaFile ) ) );
-		getFiles( getInputDir(), getResult(), Field.AGP ).forEach(agpFile -> submissionFiles.addFile( new SubmissionFile( FileType.AGP,agpFile ) ) );
-		getFiles( getInputDir(), getResult(), Field.FLATFILE ).forEach(flatFile -> submissionFiles.addFile( new SubmissionFile( FileType.FLATFILE,flatFile ) ) );
-		getFiles( getInputDir(), getResult(), Field.CHROMOSOME_LIST ).forEach(chromosomeListFile -> submissionFiles.addFile( new SubmissionFile( FileType.CHROMOSOME_LIST, chromosomeListFile ) ) );
-		getFiles( getInputDir(), getResult(), Field.UNLOCALISED_LIST ).forEach(unlocalisedListFile -> submissionFiles.addFile( new SubmissionFile( FileType.UNLOCALISED_LIST, unlocalisedListFile ) ) );
+		getFiles( getInputDir(), manifest_result, Field.FASTA ).forEach(fastaFile -> submissionFiles.addFile( new SubmissionFile( FileType.FASTA,fastaFile ) ) );
+		getFiles( getInputDir(), manifest_result, Field.AGP ).forEach(agpFile -> submissionFiles.addFile( new SubmissionFile( FileType.AGP,agpFile ) ) );
+		getFiles( getInputDir(), manifest_result, Field.FLATFILE ).forEach(flatFile -> submissionFiles.addFile( new SubmissionFile( FileType.FLATFILE,flatFile ) ) );
+		getFiles( getInputDir(), manifest_result, Field.CHROMOSOME_LIST ).forEach(chromosomeListFile -> submissionFiles.addFile( new SubmissionFile( FileType.CHROMOSOME_LIST, chromosomeListFile ) ) );
+		getFiles( getInputDir(), manifest_result, Field.UNLOCALISED_LIST ).forEach(unlocalisedListFile -> submissionFiles.addFile( new SubmissionFile( FileType.UNLOCALISED_LIST, unlocalisedListFile ) ) );
 
         // "primary metagenome" and "binned metagenome" checks
-		if( ASSEMBLY_TYPE_PRIMARY_METAGENOME.equals( getResult().getValue( Field.ASSEMBLY_TYPE ) ) ||
-			ASSEMBLY_TYPE_BINNED_METAGENOME.equals( getResult().getValue( Field.ASSEMBLY_TYPE ) ) )
+		if( ASSEMBLY_TYPE_PRIMARY_METAGENOME.equals( manifest_result.getValue( Field.ASSEMBLY_TYPE ) ) ||
+			ASSEMBLY_TYPE_BINNED_METAGENOME.equals( manifest_result.getValue( Field.ASSEMBLY_TYPE ) ) )
 		{
 		    if(submissionFiles.getFiles()
 					.stream()

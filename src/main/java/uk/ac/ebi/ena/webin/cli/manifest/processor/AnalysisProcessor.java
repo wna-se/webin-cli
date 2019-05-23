@@ -26,25 +26,27 @@ import uk.ac.ebi.ena.webin.cli.manifest.ManifestFieldValue;
 import uk.ac.ebi.ena.webin.cli.service.AnalysisService;
 
 public class
-AnalysisProcessor implements ManifestFieldProcessor
+AnalysisProcessor extends AbstractManifestFieldProcessor<List<Analysis>> implements ManifestFieldProcessor
 {
     private final WebinCliParameters parameters;
-    private final ManifestFieldProcessor.Callback<List<Analysis>> callback;
-
+    private List<Analysis> analysis_list;
+    
     public 
-    AnalysisProcessor( WebinCliParameters parameters, ManifestFieldProcessor.Callback<List<Analysis>> callback )
+    AnalysisProcessor( WebinCliParameters parameters,
+                       ManifestFieldProcessor.Callback<List<Analysis>> callback )
     {
+        super( callback );
         this.parameters = parameters;
-        this.callback = callback;
     }
 
     
     @Override public ValidationResult
-    process( ManifestFieldValue fieldValue )
+    validate( ManifestFieldValue fieldValue )
     {
         String value = fieldValue.getValue();
         String[] analyses = value.split( ", *" );
-        List<Analysis> analysis_list = new ArrayList<Analysis>( analyses.length );
+        
+        analysis_list = new ArrayList<Analysis>( analyses.length );
         ValidationResult result    = new ValidationResult();
         
         for( String a : analyses )
@@ -73,9 +75,15 @@ AnalysisProcessor implements ManifestFieldProcessor
             fieldValue.setValue( analysis_list.stream()
                                               .map( e -> e.getAnalysisId() )
                                               .collect( Collectors.joining( ", " ) ) );
-            callback.notify( analysis_list );
         }
         
         return result;
+    }
+
+
+    @Override public List<Analysis> 
+    getCallbackPayload()
+    {
+        return analysis_list;
     }
 }
