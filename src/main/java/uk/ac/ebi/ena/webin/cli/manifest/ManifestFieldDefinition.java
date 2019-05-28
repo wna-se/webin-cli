@@ -18,7 +18,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.util.Assert;
 
-public class ManifestFieldDefinition {
+public class
+ManifestFieldDefinition 
+{
 
   private final String name;
   private final String description;
@@ -28,6 +30,7 @@ public class ManifestFieldDefinition {
   private final int spreadsheetMinCount;
   private final int spreadsheetMaxCount;
   private final List<ManifestFieldProcessor> processors;
+  private final boolean output_only_value;
 
   private ManifestFieldDefinition(
       String name,
@@ -37,7 +40,9 @@ public class ManifestFieldDefinition {
       int maxCount,
       int spreadsheetMinCount,
       int spreadsheetMaxCount,
-      List<ManifestFieldProcessor> processors) {
+      List<ManifestFieldProcessor> processors,
+      boolean output_only_value ) 
+  {
     Assert.notNull(name, "Field name must not be null");
     Assert.notNull(description, "Field description must not be null");
     Assert.notNull(type, "Field type must not be null");
@@ -49,6 +54,7 @@ public class ManifestFieldDefinition {
     this.spreadsheetMinCount = spreadsheetMinCount;
     this.spreadsheetMaxCount = spreadsheetMaxCount;
     this.processors = processors;
+    this.output_only_value = output_only_value;
   }
 
   public String getName() {
@@ -83,6 +89,14 @@ public class ManifestFieldDefinition {
     return processors;
   }
 
+  
+  public boolean
+  getOutputOnlyValue() 
+  {
+      return output_only_value;
+  }
+  
+  
   public static class Builder {
 
     private final List<ManifestFieldDefinition> fields = new ArrayList<>();
@@ -109,7 +123,9 @@ public class ManifestFieldDefinition {
       private boolean notInSpreadsheet = false;
       private boolean requiredInSpreadsheet = false;
       private List<ManifestFieldProcessor> processors = new ArrayList<>();
-
+      private boolean output_only_value;
+      
+      
       private Field(Builder builder, ManifestFieldType type) {
         this.builder = builder;
         this.type = type;
@@ -124,7 +140,18 @@ public class ManifestFieldDefinition {
         this.description = description;
         return this;
       }
+      
 
+      public Field
+      outputOnly()
+      {
+          this.output_only_value = true;
+          this.minCount = 0;
+          this.maxCount = 0;
+          return this;
+      }
+      
+      
       public Field optional() {
         this.minCount = 0;
         this.maxCount = 1;
@@ -179,9 +206,33 @@ public class ManifestFieldDefinition {
         else if (requiredInSpreadsheet) {
           spreadsheetMinCount = 1;
         }
-        builder.fields.add(new ManifestFieldDefinition(
-                name, description, type, minCount, maxCount, spreadsheetMinCount, spreadsheetMaxCount, processors));
+        
+        if( output_only_value ) 
+        {
+            this.minCount = 0;
+            this.maxCount = 0;
+            spreadsheetMinCount = 0;
+            spreadsheetMaxCount = 0;
+        }
+        
+        builder.fields.add( new ManifestFieldDefinition( name, 
+                                                         description, 
+                                                         type, 
+                                                         minCount, 
+                                                         maxCount, 
+                                                         spreadsheetMinCount, 
+                                                         spreadsheetMaxCount, 
+                                                         processors,
+                                                         output_only_value ) );
       }
     }
   }
+  
+  
+  public String
+  toString()
+  {
+      return String.format( "%s%s[ %d, %d ]", getOutputOnlyValue() ? "<" : ">", getName(), getMinCount(), getMaxCount() );
+  }
+  
 }

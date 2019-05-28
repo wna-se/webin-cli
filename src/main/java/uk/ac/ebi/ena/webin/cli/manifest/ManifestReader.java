@@ -44,9 +44,12 @@ ManifestReader
     private final List<ManifestFieldDefinition> infoFields = new ManifestFieldDefinition.Builder()
         .file().optional().name(Fields.INFO).desc(Descriptions.INFO).build();
 
-    static class ManifestReaderState
+    
+    public static class 
+    ManifestReaderState
     {
-        ManifestReaderState(Path inputDir, String fileName)
+        public 
+        ManifestReaderState( Path inputDir, String fileName )
         {
             this.inputDir = inputDir;
             this.fileName = fileName;
@@ -106,7 +109,7 @@ ManifestReader
         return fileGroups;
     }
 
-    private final ManifestReaderResult
+    protected ManifestReaderResult
     getResult()
     {
         return result;
@@ -119,11 +122,19 @@ ManifestReader
         return result.getValidationResult();
     }
 
+    
+    public void
+    setState( ManifestReaderState state )
+    {
+        this.state = state;
+    }
+    
+    
 
     public final void
     readManifest( Path inputDir, File file )
     {
-        state = new ManifestReaderState( inputDir, file.getPath() );
+        setState( new ManifestReaderState( inputDir, file.getPath() ) );
         result = new ManifestReaderResult();
 
         List<String> manifestLines;
@@ -183,7 +194,11 @@ ManifestReader
                                 .stream()
                                 .filter( field -> !field.getName().equalsIgnoreCase( INFO ) )
                                 .collect( Collectors.toList() ) );
-
+        
+        result.getFields().addAll( fields.stream()
+                                         .filter( e -> e.getOutputOnlyValue() )
+                                         .map( e -> new ManifestFieldValue( e, String.valueOf( Boolean.FALSE ), null ) )
+                                         .collect( Collectors.toList() ) );
         // Validate.
         validateManifest();
 

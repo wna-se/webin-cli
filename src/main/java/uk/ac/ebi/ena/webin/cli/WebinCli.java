@@ -199,20 +199,22 @@ public class WebinCli {
            
 	   } catch( WebinCliException ex )
 	   {
-	      switch( ex.getErrorType() )
-	      { 
+	       switch( ex.getErrorType() )
+	       { 
 	          case USER_ERROR:
-	               throw WebinCliException.userError( ex, WebinCliMessage.Cli.VALIDATE_USER_ERROR.format(ex.getMessage(), validator.getValidationDir()));
+	               throw WebinCliException.userError( ex, WebinCliMessage.Cli.VALIDATE_USER_ERROR.format( ex.getMessage(), validator.getValidationDir()));
 	               
 	          case VALIDATION_ERROR:
-	               throw WebinCliException.validationError( ex, WebinCliMessage.Cli.VALIDATE_USER_ERROR.format(ex.getMessage(), validator.getValidationDir()));
+	               throw WebinCliException.validationError( ex, WebinCliMessage.Cli.VALIDATE_USER_ERROR.format( ex.getMessage(), validator.getValidationDir()));
 	               
 	          case SYSTEM_ERROR:
-	               throw WebinCliException.systemError( ex, WebinCliMessage.Cli.VALIDATE_SYSTEM_ERROR.format(ex.getMessage(), validator.getValidationDir()));
-	      }
+	               throw WebinCliException.systemError( ex, WebinCliMessage.Cli.VALIDATE_SYSTEM_ERROR.format( ex.getMessage(), validator.getValidationDir()));
+	       }
 	   } catch( Throwable ex )
 	   {
-	      throw WebinCliException.systemError( ex, WebinCliMessage.Cli.VALIDATE_SYSTEM_ERROR.format(ex.getMessage(), validator.getValidationDir()));
+	       StringWriter sw = new StringWriter();
+	       ex.printStackTrace( new PrintWriter( sw ) );
+	      throw WebinCliException.systemError( ex, WebinCliMessage.Cli.VALIDATE_SYSTEM_ERROR.format( null == ex.getMessage() ? sw.toString() : ex.getMessage(), validator.getValidationDir()));
 	   }
 	}
 	 

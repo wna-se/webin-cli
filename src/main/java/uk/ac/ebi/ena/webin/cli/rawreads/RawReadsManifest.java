@@ -54,6 +54,7 @@ RawReadsManifest extends ManifestReader
         String FASTQ = "FASTQ";
         String BAM = "BAM";
         String CRAM = "CRAM";
+        String __PAIRED = "__PAIRED";
     }
 
     public interface Description {
@@ -87,11 +88,7 @@ RawReadsManifest extends ManifestReader
     public final static ManifestCVList CV_SELECTION = new ManifestCVList(new File("uk/ac/ebi/ena/webin/cli/rawreads/selection.properties"));
     public final static ManifestCVList CV_SOURCE = new ManifestCVList(new File("uk/ac/ebi/ena/webin/cli/rawreads/source.properties"));
     public final static ManifestCVList CV_STRATEGY = new ManifestCVList(new File("uk/ac/ebi/ena/webin/cli/rawreads/strategy.properties"));
-    public final static ManifestCVList CV_QUALITY_SCORE = new ManifestCVList(
-            QUALITY_SCORE_PHRED_33,
-            QUALITY_SCORE_PHRED_64,
-            QUALITY_SCORE_LOGODDS
-    );
+    public final static ManifestCVList CV_QUALITY_SCORE = new ManifestCVList( QUALITY_SCORE_PHRED_33, QUALITY_SCORE_PHRED_64, QUALITY_SCORE_LOGODDS );
 
     private String name = null;
     private String description = null;
@@ -161,7 +158,8 @@ RawReadsManifest extends ManifestReader
                .file().optional().name( Field.BAM  ).desc( Description.BAM  ).processor( getBamProcessors() ).and()
                .file().optional().name( Field.CRAM ).desc( Description.CRAM ).processor( getCramProcessors() ).and()
                .meta().optional().notInSpreadsheet().name( Field.QUALITY_SCORE ).desc( Description.QUALITY_SCORE ).processor( new CVFieldProcessor( CV_QUALITY_SCORE ) ).and()
-               .meta().optional().notInSpreadsheet().name( Field.__HORIZON     ).desc( Description.__HORIZON ).build();
+               .meta().optional().notInSpreadsheet().name( Field.__HORIZON     ).desc( Description.__HORIZON ).and()
+               .meta().outputOnly().name( Field.__PAIRED ).desc( "Nothing here" ).build();
     }
 
 
@@ -333,6 +331,13 @@ RawReadsManifest extends ManifestReader
         processFiles( result );
     }
 
+    
+    @Override public ManifestReaderResult
+    getResult()
+    {
+        return super.getResult();
+    }
+    
 
     private void
     processInstrumentAndPlatform()
