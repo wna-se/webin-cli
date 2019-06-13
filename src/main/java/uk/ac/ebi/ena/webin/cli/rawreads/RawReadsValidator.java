@@ -51,13 +51,6 @@ RawReadsValidator implements WebinCliValidator
     
     private ValidatorData mdata;
     
-    
-    static 
-    {
-        System.setProperty( "samjdk.use_cram_ref_download", Boolean.TRUE.toString() );
-    }
-
-
     private Path validation_path;
     private Path processing_path;
     private SampleProcessor sampleProcessor;

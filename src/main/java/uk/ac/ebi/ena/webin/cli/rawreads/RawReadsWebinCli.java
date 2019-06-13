@@ -22,7 +22,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -30,8 +29,6 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.ebi.ena.readtools.webin.cli.rawreads.RawReadsFile;
 import uk.ac.ebi.ena.readtools.webin.cli.rawreads.RawReadsFile.ChecksumMethod;
@@ -81,14 +78,8 @@ RawReadsWebinCli extends AbstractWebinCli<RawReadsManifest>
     }
     
     
-    private SampleProcessor sampleProcessor;
-    private StudyProcessor  studyProcessor;
-    
-    
     //TODO value should be estimated via validation
     private boolean is_paired;
-
-    private static final Logger log = LoggerFactory.getLogger(RawReadsWebinCli.class);
     RawReadsValidatorData mdata;
     
 
