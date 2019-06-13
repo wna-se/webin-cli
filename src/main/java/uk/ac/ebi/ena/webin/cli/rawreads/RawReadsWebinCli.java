@@ -35,13 +35,12 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.ebi.ena.readtools.webin.cli.rawreads.RawReadsFile;
 import uk.ac.ebi.ena.readtools.webin.cli.rawreads.RawReadsFile.ChecksumMethod;
-import uk.ac.ebi.ena.readtools.webin.cli.rawreads.RawReadsValidator;
-import uk.ac.ebi.ena.readtools.webin.cli.rawreads.WebinCliValidator.WorkDirLayout;
 import uk.ac.ebi.ena.webin.cli.AbstractWebinCli;
 import uk.ac.ebi.ena.webin.cli.WebinCli;
 import uk.ac.ebi.ena.webin.cli.WebinCliContext;
 import uk.ac.ebi.ena.webin.cli.WebinCliException;
 import uk.ac.ebi.ena.webin.cli.WebinCliMessage;
+import uk.ac.ebi.ena.webin.cli.WebinCliValidator.WorkDirLayout;
 import uk.ac.ebi.ena.webin.cli.manifest.processor.SampleProcessor;
 import uk.ac.ebi.ena.webin.cli.manifest.processor.StudyProcessor;
 import uk.ac.ebi.ena.webin.cli.rawreads.RawReadsManifest.Field;

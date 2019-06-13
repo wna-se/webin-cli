@@ -159,7 +159,7 @@ RawReadsManifest extends ManifestReader
                .file().optional().name( Field.CRAM ).desc( Description.CRAM ).processor( getCramProcessors() ).and()
                .meta().optional().notInSpreadsheet().name( Field.QUALITY_SCORE ).desc( Description.QUALITY_SCORE ).processor( new CVFieldProcessor( CV_QUALITY_SCORE ) ).and()
                .meta().optional().notInSpreadsheet().name( Field.__HORIZON     ).desc( Description.__HORIZON ).and()
-               .meta().outputOnly().name( Field.__PAIRED ).desc( "Nothing here" ).build();
+               .data().name( Field.__PAIRED ).defaultValue( String.valueOf( Boolean.FALSE ) ).desc( "paired from validator" ).build();
     }
 
 
@@ -383,7 +383,7 @@ RawReadsManifest extends ManifestReader
     processFiles( ManifestReaderResult manifest_result )
     {
         files = manifest_result.getFields().stream()
-                .filter( field -> field.getDefinition().getType() == ManifestFieldType.FILE )
+                .filter( field -> field.getDefinition().getType() == ManifestFieldType.MANIFEST_FILE )
                 .map( field -> createReadFile( getInputDir(), field ) )
                 .collect( Collectors.toList() );
 
@@ -405,7 +405,7 @@ RawReadsManifest extends ManifestReader
     static RawReadsFile
     createReadFile( Path inputDir, ManifestFieldValue field )
     {
-        assert( field.getDefinition().getType() == ManifestFieldType.FILE );
+        assert( field.getDefinition().getType() == ManifestFieldType.MANIFEST_FILE );
 
         RawReadsFile f = new RawReadsFile();
         f.setInputDir( inputDir );

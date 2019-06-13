@@ -20,15 +20,27 @@ ManifestFieldValue
     private Origin origin;
     private boolean validFieldValueOrFileSuffix = true;
 
+    
+    public 
+    ManifestFieldValue( ManifestFieldDefinition definition )
+    {
+        this( definition, null, null );
+    }
+    
+    
     public 
     ManifestFieldValue( ManifestFieldDefinition definition, String value, Origin origin )
     {
         assert( definition != null );
-        assert( value != null );
+        
+        if( null == definition.getDefaultValue() )
+            assert( value != null );
+        
         this.definition = definition;
         this.value = value;
         this.origin = origin;
     }
+    
     
     public String 
     getName() 

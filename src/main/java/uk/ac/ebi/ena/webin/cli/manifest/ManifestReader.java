@@ -14,12 +14,20 @@ import static uk.ac.ebi.ena.webin.cli.manifest.ManifestReader.Fields.INFO;
 import static uk.ac.ebi.ena.webin.cli.manifest.ManifestReader.ManifestReaderState.State.PARSE;
 import static uk.ac.ebi.ena.webin.cli.manifest.ManifestReader.ManifestReaderState.State.VALIDATE;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
@@ -27,7 +35,9 @@ import java.util.zip.GZIPInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.lang.StringUtils;
 
-import uk.ac.ebi.embl.api.validation.*;
+import uk.ac.ebi.embl.api.validation.DefaultOrigin;
+import uk.ac.ebi.embl.api.validation.Origin;
+import uk.ac.ebi.embl.api.validation.ValidationResult;
 import uk.ac.ebi.ena.webin.cli.WebinCliMessage;
 
 public abstract class 
@@ -196,8 +206,8 @@ ManifestReader
                                 .collect( Collectors.toList() ) );
         
         result.getFields().addAll( fields.stream()
-                                         .filter( e -> e.getOutputOnlyValue() )
-                                         .map( e -> new ManifestFieldValue( e, String.valueOf( Boolean.FALSE ), null ) )
+                                         .filter( e -> ManifestFieldType.VALIDATOR_META.equals( e.getType() ) )
+                                         .map( e -> new ManifestFieldValue( e, null, null ) )
                                          .collect( Collectors.toList() ) );
         // Validate.
         validateManifest();
@@ -254,7 +264,7 @@ ManifestReader
             {
                 ManifestFieldValue field = new ManifestFieldValue( fieldDefinition, fieldValue, createParseOrigin() );
 
-                if( field.getDefinition().getType() == ManifestFieldType.FILE )
+                if( field.getDefinition().getType() == ManifestFieldType.MANIFEST_FILE )
                 {
 
                     // Validate file exists.
@@ -377,7 +387,7 @@ ManifestReader
 
         Map<String, Long> fileCountMap = result.getFields()
                                                .stream()
-                                               .filter( field -> field.getDefinition().getType().equals( ManifestFieldType.FILE ) )
+                                               .filter( field -> field.getDefinition().getType().equals( ManifestFieldType.MANIFEST_FILE ) )
                                                .collect( Collectors.groupingBy( ManifestFieldValue::getName, Collectors.counting() ) );
 
         if( fileCountMap == null || fileCountMap.isEmpty() )
@@ -580,7 +590,7 @@ ManifestReader
     protected static List<File>
     getFiles(Path inputDir, ManifestReaderResult result, String fieldName) {
         return result.getFields().stream()
-                .filter(field -> field.getDefinition().getType() == ManifestFieldType.FILE &&
+                .filter(field -> field.getDefinition().getType() == ManifestFieldType.MANIFEST_FILE &&
                         field.getName().equals(fieldName))
                 .map(field -> getFile(inputDir, field))
                 .collect(Collectors.toList());
@@ -591,7 +601,7 @@ ManifestReader
         if (field == null) {
             return null;
         }
-        assert (field.getDefinition().getType() == ManifestFieldType.FILE);
+        assert (field.getDefinition().getType() == ManifestFieldType.MANIFEST_FILE);
 
         String fileName = field.getValue();
         if( !Paths.get( fileName ).isAbsolute() )

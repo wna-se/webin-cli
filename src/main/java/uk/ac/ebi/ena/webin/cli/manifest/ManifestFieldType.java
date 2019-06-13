@@ -10,7 +10,10 @@
  */
 package uk.ac.ebi.ena.webin.cli.manifest;
 
-public enum ManifestFieldType {
-    META,
-    FILE
+public enum 
+ManifestFieldType 
+{
+    MANIFEST_META,
+    MANIFEST_FILE,
+    VALIDATOR_META
 }

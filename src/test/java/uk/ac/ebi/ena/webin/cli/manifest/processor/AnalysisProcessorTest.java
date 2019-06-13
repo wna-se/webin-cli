@@ -46,7 +46,7 @@ AnalysisProcessorTest
                                                                 Assert.assertEquals( analysis_id, e.get( 0 ).getAnalysisId() ); 
                                                             } );
 
-        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.META, "ANALYSIS_REF", analysis_id );
+        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.MANIFEST_META, "ANALYSIS_REF", analysis_id );
         Assert.assertTrue( processor.process( fieldValue ).isValid() );
         Assert.assertEquals( analysis_id, fieldValue.getValue() );
     }
@@ -62,7 +62,7 @@ AnalysisProcessorTest
                                                                  Assert.assertEquals( "ERZ690500", e.get( 1 ).getAnalysisId() );
                                                              } );
 
-        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.META, "ANALYSIS_REF", "ERZ690501, ERZ690500" );
+        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.MANIFEST_META, "ANALYSIS_REF", "ERZ690501, ERZ690500" );
         Assert.assertTrue( processor.process( fieldValue ).isValid() );
         Assert.assertEquals( "ERZ690501, ERZ690500", fieldValue.getValue() );
     }
@@ -75,7 +75,7 @@ AnalysisProcessorTest
         AnalysisProcessor processor = new AnalysisProcessor( parameters, Assert::assertNull );
 
         final String analysis_id = "SOME_ANALYSIS_ID";
-        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.META, "ANALYSIS_REF", analysis_id );
+        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.MANIFEST_META, "ANALYSIS_REF", analysis_id );
         ValidationResult vr = processor.process( fieldValue );
         Assert.assertFalse( vr.isValid() );
         Assert.assertEquals( 1, vr.count( Severity.ERROR ) );
@@ -89,7 +89,7 @@ AnalysisProcessorTest
     {
         AnalysisProcessor processor = new AnalysisProcessor( parameters, Assert::assertNull );
 
-        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.META, "ANALYSIS_REF", "SOME_ANALYSIS_ID1, ERZ690500, SOME_ANALYSIS_ID2" );
+        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.MANIFEST_META, "ANALYSIS_REF", "SOME_ANALYSIS_ID1, ERZ690500, SOME_ANALYSIS_ID2" );
         ValidationResult vr = processor.process( fieldValue );
         vr.getMessages( Severity.ERROR ).stream().forEach( System.out::println );
         Assert.assertFalse( vr.isValid() );

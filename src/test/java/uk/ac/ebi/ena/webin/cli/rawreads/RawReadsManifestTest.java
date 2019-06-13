@@ -50,17 +50,17 @@ RawReadsManifestTest
         Path inputDir = Paths.get( "." );
 
         RawReadsFile file = RawReadsManifest.createReadFile(inputDir,
-                ProcessorTestUtils.createFieldValue(ManifestFieldType.FILE, Field.FASTQ, "file.fastq"));
+                ProcessorTestUtils.createFieldValue(ManifestFieldType.MANIFEST_FILE, Field.FASTQ, "file.fastq"));
         Assert.assertTrue( file.getFilename().contains( "file.fastq" ) );
         Assert.assertEquals( Filetype.fastq, file.getFiletype() );
 
         file = RawReadsManifest.createReadFile(inputDir,
-                ProcessorTestUtils.createFieldValue(ManifestFieldType.FILE, Field.BAM, "file.bam"));
+                ProcessorTestUtils.createFieldValue(ManifestFieldType.MANIFEST_FILE, Field.BAM, "file.bam"));
         Assert.assertTrue( file.getFilename().contains( "file.bam" ) );
         Assert.assertEquals( Filetype.bam, file.getFiletype() );
 
         file = RawReadsManifest.createReadFile(inputDir,
-                ProcessorTestUtils.createFieldValue(ManifestFieldType.FILE, Field.CRAM, "file.cram"));
+                ProcessorTestUtils.createFieldValue(ManifestFieldType.MANIFEST_FILE, Field.CRAM, "file.cram"));
         Assert.assertTrue( file.getFilename().contains( "file.cram" ) );
         Assert.assertEquals( Filetype.cram, file.getFiletype() );
     }

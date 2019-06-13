@@ -42,7 +42,7 @@ SampleProcessorTest
     {
         SampleProcessor processor = new SampleProcessor( parameters, (Sample sample) -> Assert.assertEquals( "SAMEA749881", sample.getBiosampleId() ) );
         
-        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.META, "SAMPLE", "ERS000002" );
+        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.MANIFEST_META, "SAMPLE", "ERS000002" );
         Assert.assertTrue( processor.process( fieldValue ).isValid() );
         Assert.assertEquals( "SAMEA749881", fieldValue.getValue() );
     }
@@ -52,7 +52,7 @@ SampleProcessorTest
     testIncorrect()
     {
         SampleProcessor processor = new SampleProcessor( parameters, Assert::assertNull );
-        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.META, "SAMPLE", "SRP000392" );
+        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.MANIFEST_META, "SAMPLE", "SRP000392" );
         Assert.assertFalse( processor.process(fieldValue).isValid() );
         Assert.assertEquals( "SRP000392", fieldValue.getValue() );
     }

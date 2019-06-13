@@ -158,7 +158,7 @@ public class SpreadsheetWriter {
             Comment comment = drawing.createCellComment(anchor);
 
             RichTextString commentStr;
-            if (field.getType() == ManifestFieldType.META) {
+            if (field.getType() == ManifestFieldType.MANIFEST_META) {
                     commentStr = creationHelper.createRichTextString(field.getDescription() +
                     (field.getSpreadsheetMinCount() > 0 ? " (mandatory field)" : "(optional field)"));
             }

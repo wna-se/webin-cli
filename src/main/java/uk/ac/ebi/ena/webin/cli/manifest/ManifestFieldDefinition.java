@@ -30,22 +30,22 @@ ManifestFieldDefinition
   private final int spreadsheetMinCount;
   private final int spreadsheetMaxCount;
   private final List<ManifestFieldProcessor> processors;
-  private final boolean output_only_value;
+  private final String default_value;
 
-  private ManifestFieldDefinition(
-      String name,
-      String description,
-      ManifestFieldType type,
-      int minCount,
-      int maxCount,
-      int spreadsheetMinCount,
-      int spreadsheetMaxCount,
-      List<ManifestFieldProcessor> processors,
-      boolean output_only_value ) 
+  private 
+  ManifestFieldDefinition( String name,
+                           String description,
+                           ManifestFieldType type,
+                           int minCount,
+                           int maxCount,
+                           int spreadsheetMinCount,
+                           int spreadsheetMaxCount,
+                           List<ManifestFieldProcessor> processors,
+                           String default_value ) 
   {
-    Assert.notNull(name, "Field name must not be null");
-    Assert.notNull(description, "Field description must not be null");
-    Assert.notNull(type, "Field type must not be null");
+    Assert.notNull( name, "Field name must not be null" );
+    Assert.notNull( description, "Field description must not be null" );
+    Assert.notNull( type, "Field type must not be null" );
     this.name = name;
     this.description = description;
     this.type = type;
@@ -54,66 +54,109 @@ ManifestFieldDefinition
     this.spreadsheetMinCount = spreadsheetMinCount;
     this.spreadsheetMaxCount = spreadsheetMaxCount;
     this.processors = processors;
-    this.output_only_value = output_only_value;
+    this.default_value = default_value;
   }
+  
 
-  public String getName() {
+  public String 
+  getName() 
+  {
     return name;
   }
 
-  public String getDescription() {
+  
+  public String 
+  getDescription() 
+  {
     return description;
   }
 
-  public ManifestFieldType getType() {
+  
+  public ManifestFieldType 
+  getType() 
+  {
     return type;
   }
 
-  public int getMinCount() {
+  
+  public int 
+  getMinCount() 
+  {
     return minCount;
   }
 
-  public int getMaxCount() {
+  
+  public int 
+  getMaxCount() 
+  {
     return maxCount;
   }
 
-  public int getSpreadsheetMinCount() {
+  
+  public int 
+  getSpreadsheetMinCount() 
+  {
     return spreadsheetMinCount;
   }
 
-  public int getSpreadsheetMaxCount() {
+  
+  public int 
+  getSpreadsheetMaxCount() 
+  {
     return spreadsheetMaxCount;
   }
 
-  public List<ManifestFieldProcessor> getFieldProcessors() {
+  
+  public List<ManifestFieldProcessor> 
+  getFieldProcessors() 
+  {
     return processors;
   }
 
   
-  public boolean
-  getOutputOnlyValue() 
+  public String
+  getDefaultValue() 
   {
-      return output_only_value;
+      return default_value;
   }
   
   
-  public static class Builder {
-
+  public static class 
+  Builder 
+  {
     private final List<ManifestFieldDefinition> fields = new ArrayList<>();
 
-    public Field meta() {
-      return new Field(this, ManifestFieldType.META);
+    public Field 
+    meta() 
+    {
+      return new Field( this, ManifestFieldType.MANIFEST_META );
     }
 
-    public Field file() {
-      return new Field(this, ManifestFieldType.FILE);
+    
+    public Field 
+    file() 
+    {
+      return new Field( this, ManifestFieldType.MANIFEST_FILE );
     }
 
-    public Field type(ManifestFieldType type) {
-      return new Field(this, type);
+    
+    public Field 
+    data() 
+    {
+      return new Field( this, ManifestFieldType.VALIDATOR_META ).optional();
+    }
+    
+    
+    public Field 
+    type( ManifestFieldType type ) 
+    {
+      return new Field( this, type );
     }
 
-    public static class Field {
+    
+    public static class 
+    Field 
+    {
       private final Builder builder;
       private final ManifestFieldType type;
       private String name;
@@ -123,96 +166,129 @@ ManifestFieldDefinition
       private boolean notInSpreadsheet = false;
       private boolean requiredInSpreadsheet = false;
       private List<ManifestFieldProcessor> processors = new ArrayList<>();
-      private boolean output_only_value;
+      private String default_value;
       
       
-      private Field(Builder builder, ManifestFieldType type) {
+      private
+      Field( Builder builder, ManifestFieldType type )
+      {
         this.builder = builder;
-        this.type = type;
+        this.type    = type;
       }
 
-      public Field name(String name) {
+      
+      public Field 
+      name( String name )
+      {
         this.name = name;
         return this;
       }
 
-      public Field desc(String description) {
+      
+      public Field 
+      desc( String description ) 
+      {
         this.description = description;
         return this;
       }
       
 
       public Field
-      outputOnly()
+      defaultValue( String value )
       {
-          this.output_only_value = true;
-          this.minCount = 0;
-          this.maxCount = 0;
+          this.default_value = value;
           return this;
       }
       
       
-      public Field optional() {
+      public Field 
+      optional() 
+      {
         this.minCount = 0;
         this.maxCount = 1;
         return this;
       }
 
-      public Field optional(int maxCount) {
+      
+      public Field 
+      optional( int maxCount )
+      {
         this.minCount = 0;
         this.maxCount = maxCount;
         return this;
       }
 
-      public Field required() {
+      
+      public Field 
+      required() 
+      {
         this.minCount = 1;
         this.maxCount = 1;
         return this;
       }
 
-      public Field notInSpreadsheet() {
+      
+      public Field 
+      notInSpreadsheet() 
+      {
         this.notInSpreadsheet = true;
         return this;
       }
 
-      public Field requiredInSpreadsheet() {
+      
+      public Field 
+      requiredInSpreadsheet() 
+      {
         this.requiredInSpreadsheet = true;
         return this;
       }
 
-      public Field processor(ManifestFieldProcessor... processors) {
-        this.processors.addAll(
-                Arrays.stream(processors).filter(Objects::nonNull).collect(Collectors.toList()));
+      
+      public Field 
+      processor( ManifestFieldProcessor... processors ) 
+      {
+        this.processors.addAll( Arrays.stream( processors )
+                                      .filter( Objects::nonNull )
+                                      .collect( Collectors.toList() ) );
         return this;
       }
 
-      public Builder and() {
+      
+      public Builder 
+      and() 
+      {
         add();
         return builder;
       }
 
-      public List<ManifestFieldDefinition> build() {
+      
+      public List<ManifestFieldDefinition> 
+      build() 
+      {
         add();
         return builder.fields;
       }
 
-      private void add() {
+      
+      private void 
+      add() 
+      {
         int spreadsheetMinCount = minCount;
         int spreadsheetMaxCount = maxCount;
-        if (notInSpreadsheet) {
+        
+        if( notInSpreadsheet )
+        {
           spreadsheetMinCount = 0;
           spreadsheetMaxCount = 0;
-        }
-        else if (requiredInSpreadsheet) {
+        } else if( requiredInSpreadsheet ) 
+        {
           spreadsheetMinCount = 1;
         }
         
-        if( output_only_value ) 
+        if( null != default_value ) 
         {
             this.minCount = 0;
-            this.maxCount = 0;
             spreadsheetMinCount = 0;
-            spreadsheetMaxCount = 0;
         }
         
         builder.fields.add( new ManifestFieldDefinition( name, 
@@ -223,7 +299,7 @@ ManifestFieldDefinition
                                                          spreadsheetMinCount, 
                                                          spreadsheetMaxCount, 
                                                          processors,
-                                                         output_only_value ) );
+                                                         default_value ) );
       }
     }
   }
@@ -232,7 +308,7 @@ ManifestFieldDefinition
   public String
   toString()
   {
-      return String.format( "%s%s[ %d, %d ]", getOutputOnlyValue() ? "<" : ">", getName(), getMinCount(), getMaxCount() );
+      return String.format( "%s(%s)[ %d, %d ]", getName(), String.valueOf( getType() ), getMinCount(), getMaxCount() );
   }
   
 }

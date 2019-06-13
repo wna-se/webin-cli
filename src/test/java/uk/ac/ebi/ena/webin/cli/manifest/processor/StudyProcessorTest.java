@@ -41,7 +41,7 @@ StudyProcessorTest
     {
         StudyProcessor processor = new StudyProcessor( parameters, (Study study) -> Assert.assertEquals( "PRJNA28545", study.getProjectId() ) );
 
-        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.META, "STUDY", "SRP000392" );
+        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.MANIFEST_META, "STUDY", "SRP000392" );
         Assert.assertTrue( processor.process( fieldValue ).isValid() );
         Assert.assertEquals( "PRJNA28545", fieldValue.getValue() );
     }
@@ -52,7 +52,7 @@ StudyProcessorTest
     {
         StudyProcessor processor = new StudyProcessor( parameters, Assert::assertNull );
 
-        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.META, "STUDY", "ERS000002" );
+        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.MANIFEST_META, "STUDY", "ERS000002" );
         Assert.assertFalse( processor.process( fieldValue ).isValid() );
         Assert.assertEquals( "ERS000002", fieldValue.getValue() );
     }

@@ -1,4 +1,4 @@
-package uk.ac.ebi.ena.readtools.webin.cli.rawreads;
+package uk.ac.ebi.ena.webin.cli;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -14,10 +14,10 @@ WebinCliValidator
     public static class
     WorkDirLayout
     {
-        protected Path input;
-        protected Path process;
-        protected Path validate;
-        protected Path submit;
+        public Path input;
+        public Path process;
+        public Path validate;
+        public Path submit;
     }
     
     
@@ -27,6 +27,7 @@ WebinCliValidator
         final public List<ManifestFieldDefinition> fields;
         final public List<ManifestFileGroup> fileGroups;
         
+        public
         ManifestDefinition( List<ManifestFieldDefinition> fields, 
                             List<ManifestFileGroup>       fileGroups )
         {

@@ -26,20 +26,20 @@ ASCIIFileNameProcessorTest
     {
         ASCIIFileNameProcessor processor = new ASCIIFileNameProcessor();
 
-        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.META, "FIELD1", "a.bam" );
+        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.MANIFEST_META, "FIELD1", "a.bam" );
         Assert.assertEquals( 0, processor.process( fieldValue ).count() );
         Assert.assertEquals( "a.bam", fieldValue.getValue() );
 
-        fieldValue = createFieldValue( ManifestFieldType.META, "FIELD1", "/a/b/c.bam" );
+        fieldValue = createFieldValue( ManifestFieldType.MANIFEST_META, "FIELD1", "/a/b/c.bam" );
         Assert.assertEquals( 0, processor.process( fieldValue ).count() );
         
-        fieldValue = createFieldValue( ManifestFieldType.META, "FIELD1", "a:\\B\\c.bam" );
+        fieldValue = createFieldValue( ManifestFieldType.MANIFEST_META, "FIELD1", "a:\\B\\c.bam" );
         Assert.assertEquals( 0, processor.process( fieldValue ).count() );
         
-        fieldValue = createFieldValue( ManifestFieldType.META, "FIELD1", "a|b.cram" );
+        fieldValue = createFieldValue( ManifestFieldType.MANIFEST_META, "FIELD1", "a|b.cram" );
         Assert.assertEquals( false, processor.process( fieldValue ).isValid() );
 
-        fieldValue = createFieldValue( ManifestFieldType.META, "FIELD1", "a&b.cram" );
+        fieldValue = createFieldValue( ManifestFieldType.MANIFEST_META, "FIELD1", "a&b.cram" );
         Assert.assertEquals( false, processor.process( fieldValue ).isValid() );
         Assert.assertEquals( "a&b.cram", fieldValue.getValue() );
     }

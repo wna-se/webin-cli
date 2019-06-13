@@ -45,7 +45,7 @@ RunProcessorTest
                                                            Assert.assertEquals( "ERR2836765", e.get( 0 ).getRunId() ); 
                                                        } );
 
-        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.META, "RUN_REF", "ERR2836765" /*"ena-RUN-UNIVERSITY OF MINNESOTA-11-10-2018-17:17:11:460-400"*/ );
+        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.MANIFEST_META, "RUN_REF", "ERR2836765" /*"ena-RUN-UNIVERSITY OF MINNESOTA-11-10-2018-17:17:11:460-400"*/ );
         Assert.assertTrue( processor.process( fieldValue ).isValid() );
         Assert.assertEquals( "ERR2836765", fieldValue.getValue() );
     }
@@ -62,7 +62,7 @@ RunProcessorTest
                                                            Assert.assertEquals( "ERR2836763", e.get( 2 ).getRunId() ); 
                                                        } );
 
-        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.META, "RUN_REF", "ERR2836765, ERR2836764, ERR2836763" /*"ena-RUN-UNIVERSITY OF MINNESOTA-11-10-2018-17:17:11:460-400"*/ );
+        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.MANIFEST_META, "RUN_REF", "ERR2836765, ERR2836764, ERR2836763" /*"ena-RUN-UNIVERSITY OF MINNESOTA-11-10-2018-17:17:11:460-400"*/ );
         Assert.assertTrue( processor.process( fieldValue ).isValid() );
         Assert.assertEquals( "ERR2836765, ERR2836764, ERR2836763", fieldValue.getValue() );
     }
@@ -75,7 +75,7 @@ RunProcessorTest
         RunProcessor processor = new RunProcessor( parameters, Assert::assertNull );
 
         final String run_id = "SOME_RUN_ID";
-        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.META, "RUN_REF", run_id );
+        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.MANIFEST_META, "RUN_REF", run_id );
         ValidationResult vr = processor.process( fieldValue );
         Assert.assertFalse( vr.isValid() );
         Assert.assertEquals( 1, vr.count( Severity.ERROR ) );
@@ -89,7 +89,7 @@ RunProcessorTest
     {
         RunProcessor processor = new RunProcessor( parameters, Assert::assertNull );
 
-        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.META, "RUN_REF", "SOME_RUN_ID1, ERR2836765, SOME_RUN_ID2" );
+        ManifestFieldValue fieldValue = createFieldValue( ManifestFieldType.MANIFEST_META, "RUN_REF", "SOME_RUN_ID1, ERR2836765, SOME_RUN_ID2" );
         ValidationResult vr = processor.process( fieldValue );
         vr.getMessages( Severity.ERROR ).stream().forEach( System.out::println );
         Assert.assertFalse( vr.isValid() );
