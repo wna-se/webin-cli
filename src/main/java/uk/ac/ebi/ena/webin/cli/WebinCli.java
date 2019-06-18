@@ -10,11 +10,17 @@
  */
 package uk.ac.ebi.ena.webin.cli;
 
-import java.io.*;
+import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.fusesource.jansi.AnsiConsole;
@@ -26,7 +32,6 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.FileAppender;
 import ch.qos.logback.core.OutputStreamAppender;
-
 import picocli.CommandLine;
 import uk.ac.ebi.embl.api.entry.genomeassembly.AssemblyInfoEntry;
 import uk.ac.ebi.embl.api.validation.ValidationEngineException;
@@ -41,7 +46,9 @@ import uk.ac.ebi.ena.webin.cli.upload.ASCPService;
 import uk.ac.ebi.ena.webin.cli.upload.FtpService;
 import uk.ac.ebi.ena.webin.cli.upload.UploadService;
 
-public class WebinCli {
+public class
+WebinCli 
+{
 	public final static int SUCCESS = 0;
 	public final static int SYSTEM_ERROR = 1;
 	public final static int USER_ERROR = 2;
@@ -166,6 +173,7 @@ public class WebinCli {
 		logger.addAppender( fileAppender );
 	}
 
+	
 	void
 	execute(WebinCliParameters parameters) throws Exception
 	{
@@ -422,13 +430,13 @@ public class WebinCli {
 		try {
 			p = Paths.get(parameters.getOutputDir().getPath(), safeDirs);
 		} catch (InvalidPathException ex) {
-			throw WebinCliException.systemError( WebinCliMessage.Cli.CREATE_DIR_ERROR.format(ex.getInput()));
+			throw WebinCliException.systemError( WebinCliMessage.Cli.CREATE_DIR_ERROR.format( ex.getInput() ) );
 		}
 
 		File dir = p.toFile();
 
-		if (!dir.exists() && !dir.mkdirs()) {
-			throw WebinCliException.systemError( WebinCliMessage.Cli.CREATE_DIR_ERROR.format(dir.getPath()));
+		if( !dir.exists() && !dir.mkdirs() ) {
+			throw WebinCliException.systemError( WebinCliMessage.Cli.CREATE_DIR_ERROR.format( dir.getPath() ) );
 		}
 
 		return dir;

@@ -12,75 +12,121 @@ package uk.ac.ebi.ena.webin.cli.manifest;
 
 import java.util.ArrayList;
 
-public class ManifestFileCount {
+public class 
+ManifestFileCount 
+{
     private final String fileType;
     private final int minCount;
     private final Integer maxCount;
 
-    public ManifestFileCount(String fileType, int minCount, Integer maxCount) {
+    public 
+    ManifestFileCount( String fileType, int minCount, Integer maxCount )
+    {
         this.fileType = fileType;
         this.minCount = minCount;
         this.maxCount = maxCount;
     }
 
-    public String getFileType() {
+    
+    public String 
+    getFileType() 
+    {
         return fileType;
     }
-    public int getMinCount() {
+    
+    
+    public int 
+    getMinCount() 
+    {
         return minCount;
     }
-    public Integer getMaxCount() {
+    
+    
+    public Integer 
+    getMaxCount() 
+    {
         return maxCount;
     }
 
-    public static class Builder {
+    
+    public static class 
+    Builder 
+    {
         private final ArrayList<ManifestFileGroup> fileGroups = new ArrayList<>();
 
-        public static class Group {
+        public static class 
+        Group 
+        {
             private final Builder builder;
             private final ManifestFileGroup fileGroup = new ManifestFileGroup();
 
-            private Group(Builder builder) {
+            private 
+            Group( Builder builder )
+            {
                 this.builder = builder;
-                builder.fileGroups.add(this.fileGroup);
+                builder.fileGroups.add( this.fileGroup );
             }
 
-            public Group required(String fieldName) {
-                fileGroup.addFileCount(new ManifestFileCount(fieldName, 1, 1));
+            
+            public Group 
+            required( String fieldName )
+            {
+                fileGroup.addFileCount( new ManifestFileCount( fieldName, 1, 1 ) );
                 return this;
             }
 
-            public Group required(String fieldName, int maxCount) {
-                fileGroup.addFileCount(new ManifestFileCount(fieldName, 1, maxCount));
+            
+            public Group 
+            required( String fieldName, int maxCount )
+            {
+                fileGroup.addFileCount( new ManifestFileCount( fieldName, 1, maxCount ) );
                 return this;
             }
 
-            public Group required(String fieldName, int minCount, int maxCount) {
-                fileGroup.addFileCount(new ManifestFileCount(fieldName, minCount, maxCount));
+            
+            public Group 
+            required( String fieldName, int minCount, int maxCount )
+            {
+                fileGroup.addFileCount( new ManifestFileCount( fieldName, minCount, maxCount ) );
                 return this;
             }
 
-            public Group optional(String fieldName) {
-                fileGroup.addFileCount(new ManifestFileCount(fieldName, 0, 1));
+            
+            public Group 
+            optional( String fieldName ) 
+            {
+                fileGroup.addFileCount( new ManifestFileCount( fieldName, 0, 1 ) );
                 return this;
             }
 
-            public Group optional(String fieldName, int maxCount) {
-                fileGroup.addFileCount(new ManifestFileCount(fieldName, 0, maxCount));
+            
+            public Group 
+            optional( String fieldName, int maxCount )
+            {
+                fileGroup.addFileCount( new ManifestFileCount( fieldName, 0, maxCount ) );
                 return this;
             }
 
-            public Builder and() {
+            
+            public Builder 
+            and() 
+            {
                 return builder;
             }
 
-            public ArrayList<ManifestFileGroup> build() {
+            
+            public ArrayList<ManifestFileGroup> 
+            build() 
+            {
                 return builder.fileGroups;
             }
         }
 
-        public Group group() {
-            return new Group(this);
+        
+        public Group 
+        group() 
+        {
+            return new Group( this );
         }
     }
 }

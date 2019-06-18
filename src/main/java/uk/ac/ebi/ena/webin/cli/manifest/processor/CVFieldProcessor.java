@@ -21,7 +21,7 @@ import uk.ac.ebi.ena.webin.cli.manifest.ManifestFieldValue;
 public class
 CVFieldProcessor implements ManifestFieldProcessor
 {
-    public final static CVFieldProcessor CV_BOOLEAN = new CVFieldProcessor(new ManifestCVList(
+    public final static CVFieldProcessor CV_BOOLEAN = new CVFieldProcessor( new ManifestCVList(
         "yes",
         "no",
         "true",
@@ -31,22 +31,28 @@ CVFieldProcessor implements ManifestFieldProcessor
 
     private final ManifestCVList cvList;
 
-    public CVFieldProcessor(String ... values )
+    
+    public 
+    CVFieldProcessor( String ... values )
     {
-        this.cvList = new ManifestCVList(values);
+        this.cvList = new ManifestCVList( values );
     }
 
-    public CVFieldProcessor(ManifestCVList cvList )
+    
+    public 
+    CVFieldProcessor( ManifestCVList cvList )
     {
         this.cvList = cvList;
     }
 
+    
     @Override public ValidationResult
     process( ManifestFieldValue fieldValue )
     {
         String value = fieldValue.getValue();
         
-        if( !cvList.contains( value ) ) {
+        if( !cvList.contains( value ) )
+        {
             return new ValidationResult().append( WebinCliMessage.error( WebinCliMessage.Manifest.INVALID_FIELD_VALUE_ERROR, fieldValue.getName(), value, cvList.keyList() ) );
         }
 

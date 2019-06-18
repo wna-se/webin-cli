@@ -119,7 +119,7 @@ ManifestReader
         return fileGroups;
     }
 
-    protected ManifestReaderResult
+    public ManifestReaderResult
     getResult()
     {
         return result;

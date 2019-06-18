@@ -77,27 +77,32 @@ public class SubmitService extends AbstractService {
     
 
     public void
-    doSubmission(List<SubmissionXMLFile> xmlFileList, String centerName, String submissionTool) {
+    doSubmission( List<SubmissionXMLFile> xmlFileList, String centerName, String submissionTool )
+    {
         RestTemplate restTemplate = new RestTemplate();
-        restTemplate.setErrorHandler(new DefaultErrorHander(WebinCliMessage.Service.SUBMISSION_SERVICE_SYSTEM_ERROR.format()));
+        restTemplate.setErrorHandler( new DefaultErrorHander( WebinCliMessage.Service.SUBMISSION_SERVICE_SYSTEM_ERROR.format() ) );
         // restTemplate.setInterceptors(Collections.singletonList(new HttpLoggingInterceptor()));
         // restTemplate.setRequestFactory(new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()));
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
 
-        for (SubmissionXMLFile xmlFile : xmlFileList) {
-            String xmlFileType = String.valueOf(xmlFile.getType());
-            body.add(xmlFileType, new FileSystemResource(xmlFile.getFile()));
+        for( SubmissionXMLFile xmlFile : xmlFileList )
+        {
+            String xmlFileType = String.valueOf( xmlFile.getType() );
+            body.add( xmlFileType, new FileSystemResource( xmlFile.getFile() ) );
         }
 
-        body.add("ACTION", "ADD");
+        body.add( "ACTION", "ADD" );
 
-        if (null != centerName && !centerName.isEmpty()) {
-            body.add("CENTER_NAME", centerName);
+        if( null != centerName && !centerName.isEmpty() )
+        {
+            body.add( "CENTER_NAME", centerName );
         }
 
-        if (null != submissionTool && !submissionTool.isEmpty()) {
-            body.add("ENA_SUBMISSION_TOOL", submissionTool);
+        
+        if( null != submissionTool && !submissionTool.isEmpty() )
+        {
+            body.add( "ENA_SUBMISSION_TOOL", submissionTool );
         }
 
         HttpHeaders headers = new HttpHeaderBuilder().basicAuth( getUserName(), getPassword() ).multipartFormData().build();
@@ -105,27 +110,33 @@ public class SubmitService extends AbstractService {
         ResponseEntity<String> response = restTemplate.exchange(
                 getWebinRestUri( "submit/", getTest() ),
                 HttpMethod.POST,
-                new HttpEntity<>( body, headers),
+                new HttpEntity<>( body, headers ),
                 String.class);
 
-        processReceipt(response.getBody(), xmlFileList);
+        processReceipt( response.getBody(), xmlFileList );
     }
 
-    private void processReceipt(String receiptXml, List<SubmissionXMLFile> xmlFileList) {
+    
+    private void 
+    processReceipt( String receiptXml, List<SubmissionXMLFile> xmlFileList )
+    {
         StringBuilder errorsSb = new StringBuilder();
-        try {
-            Path receiptFile = Paths.get(submitDir + File.separator + RECEIPT_XML);
-            if (Files.exists(receiptFile)) {
-                Files.delete(receiptFile);
+        try 
+        {
+            Path receiptFile = Paths.get( submitDir + File.separator + RECEIPT_XML );
+            if( Files.exists( receiptFile ) )
+            {
+                Files.delete( receiptFile );
             }
-            Files.createFile(receiptFile);
+            
+            Files.createFile( receiptFile );
             SAXBuilder builder = new SAXBuilder();
-            Document doc = builder.build(new StringReader(receiptXml));
+            Document doc = builder.build( new StringReader( receiptXml ) );
             XMLOutputter xmlOutput = new XMLOutputter();
-            xmlOutput.setFormat(Format.getPrettyFormat());
+            xmlOutput.setFormat( Format.getPrettyFormat() );
             StringWriter stringWriter = new StringWriter();
-            xmlOutput.output(doc, stringWriter);
-            Files.write(receiptFile, stringWriter.toString().getBytes());
+            xmlOutput.output( doc, stringWriter );
+            Files.write( receiptFile, stringWriter.toString().getBytes() );
             Element rootNode = doc.getRootElement();
             if (Boolean.valueOf(rootNode.getAttributeValue("success"))) {
                 for (SubmissionXMLFile xmlFile : xmlFileList ) {
